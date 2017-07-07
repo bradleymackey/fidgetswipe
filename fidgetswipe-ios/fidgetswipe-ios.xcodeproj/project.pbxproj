@@ -138,8 +138,8 @@
 			children = (
 				970131A61F0FA64E00E9B267 /* AppDelegate.swift */,
 				970131A81F0FA64E00E9B267 /* ViewController.swift */,
-				974594E51F0FAA290078E736 /* LeaderboardManager.swift */,
-				97BFCDDA1F0FC81100FAE239 /* Gameplay */,
+				97BFCDE11F0FE9C000FAE239 /* Leaderboard */,
+				97BFCDDA1F0FC81100FAE239 /* Game Model */,
 				970131AA1F0FA64E00E9B267 /* Main.storyboard */,
 				970131AD1F0FA64E00E9B267 /* Assets.xcassets */,
 				970131AF1F0FA64E00E9B267 /* LaunchScreen.storyboard */,
@@ -167,7 +167,7 @@
 			path = "fidgetswipe-iosUITests";
 			sourceTree = "<group>";
 		};
-		97BFCDDA1F0FC81100FAE239 /* Gameplay */ = {
+		97BFCDDA1F0FC81100FAE239 /* Game Model */ = {
 			isa = PBXGroup;
 			children = (
 				97BFCDD61F0FC78200FAE239 /* Game.swift */,
@@ -175,7 +175,15 @@
 				97BFCDDD1F0FC83C00FAE239 /* Action.swift */,
 				97BFCDD21F0FB87400FAE239 /* GameConstants.swift */,
 			);
-			name = Gameplay;
+			name = "Game Model";
+			sourceTree = "<group>";
+		};
+		97BFCDE11F0FE9C000FAE239 /* Leaderboard */ = {
+			isa = PBXGroup;
+			children = (
+				974594E51F0FAA290078E736 /* LeaderboardManager.swift */,
+			);
+			name = Leaderboard;
 			sourceTree = "<group>";
 		};
 		D1BBA55BED128F96645E9A9A /* Pods */ = {

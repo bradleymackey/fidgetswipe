@@ -48,11 +48,10 @@ public final class Game {
     }
     
     /// Calling this tells the game it should progress to a new move.
-    public func nextMove() -> (turnData:TurnData,newScore:UInt) {
+    public func nextMove() -> TurnData {
         expectedPlayerMove = Action.random()
         let timeForNext = GameManager.timeAllowedForMove(forScore: gameScore)
-        let turnData = TurnData(action: expectedPlayerMove, timeAllowed: timeForNext)
-        return (turnData,gameScore)
+        return TurnData(action: expectedPlayerMove, timeAllowed: timeForNext, newScore: gameScore)
     }
     
     /// Player calls this when they take a move.
