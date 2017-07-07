@@ -15,24 +15,29 @@ import GameKit
 final internal class LeaderboardManager {
     
     /// The singleton instance
-    static let shared = LeaderboardManager()
+    public static let shared = LeaderboardManager()
    
     /// Where the leaderboard and login window should present itself
     private var presentingViewController:UIViewController!
     /// The local player
     private let localPlayer:GKLocalPlayer
     
+    /// Use this to know whether or not we can display the leaderboard
+    public var localPlayerAuthenticated: Bool {
+        return GKLocalPlayer.localPlayer().isAuthenticated
+    }
     
     private init() {
         localPlayer = GKLocalPlayer.localPlayer()
+        self.setAuthenticateHandler()
     }
     
-    func set(presentingViewController:UIViewController) {
+    public func set(presentingViewController:UIViewController) {
         self.presentingViewController = presentingViewController
     }
 
     
-    func authenticate() {
+    private func setAuthenticateHandler() {
         localPlayer.authenticateHandler = { [unowned self] (viewController:UIViewController?, error:Error?) in
             // TODO: handle any potential errors
             if let err = error {
@@ -40,7 +45,7 @@ final internal class LeaderboardManager {
             }
             // get the viewController that we would use for authentication
             guard let vc = viewController else {
-                print(GKLocalPlayer.localPlayer().isAuthenticated)
+                print("GKLocalPlayer is authenticated: \(GKLocalPlayer.localPlayer().isAuthenticated)")
                 return
             }
             // present the authentication view controller
@@ -48,7 +53,7 @@ final internal class LeaderboardManager {
         }
     }
     
-    func showLeaderboard() {
+    public func showLeaderboard() {
         let leaderboardViewController = GKGameCenterViewController()
         leaderboardViewController.delegate = presentingViewController as? UINavigationControllerDelegate
         leaderboardViewController.viewState = .leaderboards
