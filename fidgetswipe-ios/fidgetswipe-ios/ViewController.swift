@@ -18,8 +18,8 @@ internal final class ViewController: UIViewController, GKGameCenterControllerDel
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
+       
+        // Setup the Game Center ready for posting leaderboard scores.
         LeaderboardManager.shared.set(presentingViewController: self)
         
         
@@ -37,7 +37,7 @@ internal final class ViewController: UIViewController, GKGameCenterControllerDel
             // get the second turn
             let secondTurn = game.nextMove()
         } else {
-            // WRONG! the game has ended
+            // WRONG! the game has ended (you should also report game center score at this point)
             let setupReadyForNextGame = game.nextMove()
         }
         
@@ -46,15 +46,13 @@ internal final class ViewController: UIViewController, GKGameCenterControllerDel
         
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
     
     private func setupGestureRecognisers() {
+        // setup the tap recogniser
         let tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.gestureTapped(tapGestureRecogniser:)))
         tap.numberOfTapsRequired = 1
         self.view.addGestureRecognizer(tap)
-        
+        // setup the swipe recogniser
         let swipe = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
         self.view.addGestureRecognizer(swipe)
     }

@@ -8,10 +8,17 @@
 
 import Foundation
 
-/// Manages the overall flow of the game
+/// Gives a notion of state to the `Game` class.
+fileprivate enum GameState {
+    case playing
+    case notPlaying
+}
+
+
+/// Manages the overall flow of the game.
 public final class Game {
     
-    /// The current state of the game
+    /// The current state of the game.
     private var currentState:GameState {
         didSet {
             // reset the game score when we restart the game
@@ -21,11 +28,11 @@ public final class Game {
         }
     }
     
-    /// The current game score
+    /// The current game score.
     private var gameScore:UInt
     
-    /// The expected next move of the player
-    /// - note: `nil` if game is not currently playing
+    /// The expected next move of the player.
+    /// - note: `nil` if game is not currently playing.
     private var expectedPlayerMove:Action
     
     public init() {
