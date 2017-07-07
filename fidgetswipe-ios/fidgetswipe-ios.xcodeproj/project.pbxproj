@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B0F2F7061EF2E54E331B06D /* Pods_fidgetswipe_iosUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42B5466B120DDB57B628DA5D /* Pods_fidgetswipe_iosUITests.framework */; };
+		5F98DE388DB8535BF0937528 /* Pods_fidgetswipe_iosTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F8AE2447B3289BDF4D06D38 /* Pods_fidgetswipe_iosTests.framework */; };
 		970131A71F0FA64E00E9B267 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131A61F0FA64E00E9B267 /* AppDelegate.swift */; };
 		970131A91F0FA64E00E9B267 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131A81F0FA64E00E9B267 /* ViewController.swift */; };
 		970131AC1F0FA64E00E9B267 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 970131AA1F0FA64E00E9B267 /* Main.storyboard */; };
@@ -14,6 +16,10 @@
 		970131B11F0FA64E00E9B267 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 970131AF1F0FA64E00E9B267 /* LaunchScreen.storyboard */; };
 		970131BC1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131BB1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift */; };
 		970131C71F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */; };
+		974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974594E51F0FAA290078E736 /* LeaderboardManager.swift */; };
+		97BFCDD31F0FB87400FAE239 /* GameConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BFCDD21F0FB87400FAE239 /* GameConstants.swift */; };
+		97BFCDD51F0FBB5D00FAE239 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */; };
+		C49A787BD61A8741C647969B /* Pods_fidgetswipe_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86DE2F427AA4277B57C5C492 /* Pods_fidgetswipe_ios.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +40,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0112475AD9193C3230482AB5 /* Pods-fidgetswipe-ios.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-ios.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-ios/Pods-fidgetswipe-ios.debug.xcconfig"; sourceTree = "<group>"; };
+		35E06F5EF8964DA4B5041A64 /* Pods-fidgetswipe-iosTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-iosTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-iosTests/Pods-fidgetswipe-iosTests.debug.xcconfig"; sourceTree = "<group>"; };
+		42B5466B120DDB57B628DA5D /* Pods_fidgetswipe_iosUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fidgetswipe_iosUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		79C38EAB6F3B90D9629632BF /* Pods-fidgetswipe-iosUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-iosUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-iosUITests/Pods-fidgetswipe-iosUITests.release.xcconfig"; sourceTree = "<group>"; };
+		86DE2F427AA4277B57C5C492 /* Pods_fidgetswipe_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fidgetswipe_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		970131A31F0FA64E00E9B267 /* fidgetswipe-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "fidgetswipe-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		970131A61F0FA64E00E9B267 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		970131A81F0FA64E00E9B267 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -47,6 +58,13 @@
 		970131C21F0FA64E00E9B267 /* fidgetswipe-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fidgetswipe-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fidgetswipe_iosUITests.swift; sourceTree = "<group>"; };
 		970131C81F0FA64E00E9B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		974594E51F0FAA290078E736 /* LeaderboardManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardManager.swift; sourceTree = "<group>"; };
+		97BFCDD21F0FB87400FAE239 /* GameConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameConstants.swift; sourceTree = "<group>"; };
+		97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		9F8AE2447B3289BDF4D06D38 /* Pods_fidgetswipe_iosTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fidgetswipe_iosTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A57B3D95EAB80D57CA002040 /* Pods-fidgetswipe-iosUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-iosUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-iosUITests/Pods-fidgetswipe-iosUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		C403F0872668D0DDD02523A7 /* Pods-fidgetswipe-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-ios/Pods-fidgetswipe-ios.release.xcconfig"; sourceTree = "<group>"; };
+		D7B515206B9BAE8CA8BA486D /* Pods-fidgetswipe-iosTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-iosTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-iosTests/Pods-fidgetswipe-iosTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C49A787BD61A8741C647969B /* Pods_fidgetswipe_ios.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F98DE388DB8535BF0937528 /* Pods_fidgetswipe_iosTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,12 +88,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B0F2F7061EF2E54E331B06D /* Pods_fidgetswipe_iosUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1B0A51B7B0D02E346B9CBF8B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				86DE2F427AA4277B57C5C492 /* Pods_fidgetswipe_ios.framework */,
+				9F8AE2447B3289BDF4D06D38 /* Pods_fidgetswipe_iosTests.framework */,
+				42B5466B120DDB57B628DA5D /* Pods_fidgetswipe_iosUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9701319A1F0FA64D00E9B267 = {
 			isa = PBXGroup;
 			children = (
@@ -81,6 +112,8 @@
 				970131BA1F0FA64E00E9B267 /* fidgetswipe-iosTests */,
 				970131C51F0FA64E00E9B267 /* fidgetswipe-iosUITests */,
 				970131A41F0FA64E00E9B267 /* Products */,
+				D1BBA55BED128F96645E9A9A /* Pods */,
+				1B0A51B7B0D02E346B9CBF8B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,10 +132,13 @@
 			children = (
 				970131A61F0FA64E00E9B267 /* AppDelegate.swift */,
 				970131A81F0FA64E00E9B267 /* ViewController.swift */,
+				974594E51F0FAA290078E736 /* LeaderboardManager.swift */,
+				97BFCDD21F0FB87400FAE239 /* GameConstants.swift */,
 				970131AA1F0FA64E00E9B267 /* Main.storyboard */,
 				970131AD1F0FA64E00E9B267 /* Assets.xcassets */,
 				970131AF1F0FA64E00E9B267 /* LaunchScreen.storyboard */,
 				970131B21F0FA64E00E9B267 /* Info.plist */,
+				97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */,
 			);
 			path = "fidgetswipe-ios";
 			sourceTree = "<group>";
@@ -125,6 +161,19 @@
 			path = "fidgetswipe-iosUITests";
 			sourceTree = "<group>";
 		};
+		D1BBA55BED128F96645E9A9A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0112475AD9193C3230482AB5 /* Pods-fidgetswipe-ios.debug.xcconfig */,
+				C403F0872668D0DDD02523A7 /* Pods-fidgetswipe-ios.release.xcconfig */,
+				35E06F5EF8964DA4B5041A64 /* Pods-fidgetswipe-iosTests.debug.xcconfig */,
+				D7B515206B9BAE8CA8BA486D /* Pods-fidgetswipe-iosTests.release.xcconfig */,
+				A57B3D95EAB80D57CA002040 /* Pods-fidgetswipe-iosUITests.debug.xcconfig */,
+				79C38EAB6F3B90D9629632BF /* Pods-fidgetswipe-iosUITests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -132,9 +181,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 970131CB1F0FA64E00E9B267 /* Build configuration list for PBXNativeTarget "fidgetswipe-ios" */;
 			buildPhases = (
+				CE4D44FDD316815CF02D1006 /* [CP] Check Pods Manifest.lock */,
 				9701319F1F0FA64E00E9B267 /* Sources */,
 				970131A01F0FA64E00E9B267 /* Frameworks */,
 				970131A11F0FA64E00E9B267 /* Resources */,
+				517AEEC2CF81ED766B5C107F /* [CP] Embed Pods Frameworks */,
+				317E536BC4CC19BF21364C43 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -149,9 +201,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 970131CE1F0FA64E00E9B267 /* Build configuration list for PBXNativeTarget "fidgetswipe-iosTests" */;
 			buildPhases = (
+				03BEAA4BB7BDD4EA86535C7B /* [CP] Check Pods Manifest.lock */,
 				970131B31F0FA64E00E9B267 /* Sources */,
 				970131B41F0FA64E00E9B267 /* Frameworks */,
 				970131B51F0FA64E00E9B267 /* Resources */,
+				844E5830381431582F214D28 /* [CP] Embed Pods Frameworks */,
+				03871B0F58B8AAD2000BAF8C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -167,9 +222,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 970131D11F0FA64E00E9B267 /* Build configuration list for PBXNativeTarget "fidgetswipe-iosUITests" */;
 			buildPhases = (
+				21D465653A13E3C821238615 /* [CP] Check Pods Manifest.lock */,
 				970131BE1F0FA64E00E9B267 /* Sources */,
 				970131BF1F0FA64E00E9B267 /* Frameworks */,
 				970131C01F0FA64E00E9B267 /* Resources */,
+				FF5F3BBD20564C39F5B7AE01 /* [CP] Embed Pods Frameworks */,
+				05B8CE5A96AFFD3F86B8FE66 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -236,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				970131B11F0FA64E00E9B267 /* LaunchScreen.storyboard in Resources */,
+				97BFCDD51F0FBB5D00FAE239 /* GoogleService-Info.plist in Resources */,
 				970131AE1F0FA64E00E9B267 /* Assets.xcassets in Resources */,
 				970131AC1F0FA64E00E9B267 /* Main.storyboard in Resources */,
 			);
@@ -257,12 +316,152 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		03871B0F58B8AAD2000BAF8C /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-iosTests/Pods-fidgetswipe-iosTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		03BEAA4BB7BDD4EA86535C7B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		05B8CE5A96AFFD3F86B8FE66 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-iosUITests/Pods-fidgetswipe-iosUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		21D465653A13E3C821238615 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		317E536BC4CC19BF21364C43 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-ios/Pods-fidgetswipe-ios-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		517AEEC2CF81ED766B5C107F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-ios/Pods-fidgetswipe-ios-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		844E5830381431582F214D28 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-iosTests/Pods-fidgetswipe-iosTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CE4D44FDD316815CF02D1006 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		FF5F3BBD20564C39F5B7AE01 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fidgetswipe-iosUITests/Pods-fidgetswipe-iosUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		9701319F1F0FA64E00E9B267 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				970131A91F0FA64E00E9B267 /* ViewController.swift in Sources */,
+				97BFCDD31F0FB87400FAE239 /* GameConstants.swift in Sources */,
+				974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */,
 				970131A71F0FA64E00E9B267 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -413,6 +612,7 @@
 		};
 		970131CC1F0FA64E00E9B267 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0112475AD9193C3230482AB5 /* Pods-fidgetswipe-ios.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = U2GCDMVV7S;
@@ -427,6 +627,7 @@
 		};
 		970131CD1F0FA64E00E9B267 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C403F0872668D0DDD02523A7 /* Pods-fidgetswipe-ios.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = U2GCDMVV7S;
@@ -441,6 +642,7 @@
 		};
 		970131CF1F0FA64E00E9B267 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35E06F5EF8964DA4B5041A64 /* Pods-fidgetswipe-iosTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -456,6 +658,7 @@
 		};
 		970131D01F0FA64E00E9B267 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D7B515206B9BAE8CA8BA486D /* Pods-fidgetswipe-iosTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -471,6 +674,7 @@
 		};
 		970131D21F0FA64E00E9B267 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A57B3D95EAB80D57CA002040 /* Pods-fidgetswipe-iosUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = U2GCDMVV7S;
@@ -485,6 +689,7 @@
 		};
 		970131D31F0FA64E00E9B267 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 79C38EAB6F3B90D9629632BF /* Pods-fidgetswipe-iosUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = U2GCDMVV7S;
@@ -516,6 +721,7 @@
 				970131CD1F0FA64E00E9B267 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		970131CE1F0FA64E00E9B267 /* Build configuration list for PBXNativeTarget "fidgetswipe-iosTests" */ = {
 			isa = XCConfigurationList;
@@ -524,6 +730,7 @@
 				970131D01F0FA64E00E9B267 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		970131D11F0FA64E00E9B267 /* Build configuration list for PBXNativeTarget "fidgetswipe-iosUITests" */ = {
 			isa = XCConfigurationList;
@@ -532,6 +739,7 @@
 				970131D31F0FA64E00E9B267 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

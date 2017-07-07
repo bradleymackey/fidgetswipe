@@ -7,19 +7,25 @@
 //
 
 import UIKit
+import GameKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, GKGameCenterControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        setupLeaderboardManager()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    private func setupLeaderboardManager() {
+        LeaderboardManager.shared.set(presentingViewController: self)
+        LeaderboardManager.shared.authenticate()
     }
-
+    
+    func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
+        gameCenterViewController.dismiss(animated: true, completion: nil)
+    }
 
 }
 
