@@ -9,13 +9,40 @@
 import UIKit
 import GameKit
 
-class ViewController: UIViewController, GKGameCenterControllerDelegate {
-
+internal final class ViewController: UIViewController, GKGameCenterControllerDelegate {
+    
+    
+    /// Manages the whole game.
+    private var game = Game()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         LeaderboardManager.shared.set(presentingViewController: self)
+        
+        
+        /* Game class reference example */
+        
+        // Get the first turn
+        let first = game.nextMove()
+        let firstAction = first.turnData.action
+        let timeAllowedForFirstAction = first.turnData.timeAllowed
+        let updatedScore = first.newScore
+        
+        // Take a turn
+        let successful = game.take(move: .swipeDown)
+        if successful {
+            // get the second turn
+            let secondTurn = game.nextMove()
+        } else {
+            // WRONG! the game has ended
+            let setupReadyForNextGame = game.nextMove()
+        }
+        
+        // NB: the flow is THE SAME no matter is the go is wrong or right
+        // this is because we don't have a 'Play Again' screen, they just start swiping again to keep playing
         
     }
     

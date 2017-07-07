@@ -6,6 +6,8 @@
 //  Copyright © 2017 Bradley Mackey. All rights reserved.
 //
 
+import Foundation
+
 public enum Action: Int {
     case tap        = 0
     case swipeUp    = 1
@@ -13,5 +15,14 @@ public enum Action: Int {
     case swipeRight = 3
     case swipeLeft  = 4
     
-    static let totalActions:UInt32 = 5
+    public static let totalActions:UInt32 = 5
+    
+    public static func random() -> Action {
+        let randomNumber = arc4random_uniform(Action.totalActions)
+        if let action = Action(rawValue: Int(randomNumber)) {
+            return action
+        } else {
+            fatalError("This rawValue (\(randomNumber)) does not equate to a vaild action.")
+        }
+    }
 }

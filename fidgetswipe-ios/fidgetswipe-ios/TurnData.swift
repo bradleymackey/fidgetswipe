@@ -1,5 +1,5 @@
 //
-//  GameState.swift
+//  TurnData.swift
 //  fidgetswipe-ios
 //
 //  Created by Bradley Mackey on 07/07/2017.
@@ -8,8 +8,7 @@
 
 import Foundation
 
-public enum GameState {
-    case playing
-    case notPlaying
+public struct TurnData {
+    let action:Action
+    let timeAllowed:TimeInterval
 }
-
