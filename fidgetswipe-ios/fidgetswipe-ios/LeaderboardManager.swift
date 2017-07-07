@@ -13,14 +13,13 @@ import Firebase
 
 
 /// A singleton instance used to handle Game Center authentication and leaderboard management
-final internal class LeaderboardManager {
+public final class LeaderboardManager {
     
     /// The singleton instance
     public static let shared = LeaderboardManager()
     
     /// The leaderboard id
     public static let leaderboardID = "score_leaderboard"
-    
     
     /// Where the leaderboard and login window should present itself
     private var presentingViewController:UIViewController!
@@ -61,6 +60,9 @@ final internal class LeaderboardManager {
     }
     
     public func showLeaderboard() {
+        
+        Analytics.logEvent("show_leaderboard", parameters: nil)
+        
         let leaderboardViewController = GKGameCenterViewController()
         leaderboardViewController.delegate = presentingViewController as? UINavigationControllerDelegate
         leaderboardViewController.viewState = .leaderboards
@@ -75,10 +77,10 @@ final internal class LeaderboardManager {
         score.value = Int64(scoreVal)
         GKScore.report([score]) { [scoreVal] (error) in
             if let err = error {
-                Analytics.logEvent("error_report_score", parameters: nil)
+                Analytics.logEvent("error_report_score", parameters: ["score":scoreVal])
                 print("error reporting score to leaderboard: \(err.localizedDescription)")
             } else {
-                Analytics.logEvent("submitted_score", parameters: ["score":scoreVal])
+                Analytics.logEvent("report_score", parameters: ["score":scoreVal])
             }
         }
     }

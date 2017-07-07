@@ -8,7 +8,7 @@
 
 import Foundation
 import FirebaseRemoteConfig
-
+import FirebaseAnalytics
 
 
 /// Singleton class used for the game, backed by remote config. (Use public methods to access data)
@@ -30,6 +30,7 @@ public final class GameConstants {
         static let time_60 = "time_60"
     }
     
+    /// Default values for all the different stages in the game
     private struct GameConstantsValues {
         static let time_1:NSNumber = 4
         static let time_2:NSNumber = 3
@@ -59,8 +60,10 @@ public final class GameConstants {
     private func updateRemoteConfigValues() {
         remoteConfig.fetch(withExpirationDuration: 43200) { (status, error) in
             if let err = error {
+                Analytics.logEvent("remote_config_err", parameters: nil)
                 print("Error getting remote config values: \(err.localizedDescription)")
             } else {
+                Analytics.logEvent("remote_config_succ", parameters: nil)
                 print("got updated remote config values with status: \(status)")
             }
         }

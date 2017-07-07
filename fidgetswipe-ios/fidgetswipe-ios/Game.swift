@@ -14,7 +14,6 @@ fileprivate enum GameState {
     case notPlaying
 }
 
-
 /// Manages the overall flow of the game.
 public final class Game {
     
@@ -50,7 +49,7 @@ public final class Game {
     /// Calling this tells the game it should progress to a new move.
     public func nextMove() -> TurnData {
         expectedPlayerMove = Action.random()
-        let timeForNext = GameManager.timeAllowedForMove(forScore: gameScore)
+        let timeForNext = Game.timeAllowedForMove(forScore: gameScore)
         return TurnData(action: expectedPlayerMove, timeAllowed: timeForNext, newScore: gameScore)
     }
     

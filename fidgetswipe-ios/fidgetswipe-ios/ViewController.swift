@@ -9,7 +9,7 @@
 import UIKit
 import GameKit
 
-internal final class ViewController: UIViewController, GKGameCenterControllerDelegate {
+final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     
     /// Manages the whole game.
@@ -27,8 +27,8 @@ internal final class ViewController: UIViewController, GKGameCenterControllerDel
         
         // Get the first turn
         let first = game.nextMove()
-        let firstAction = first.turnData.action
-        let timeAllowedForFirstAction = first.turnData.timeAllowed
+        let firstAction = first.action
+        let timeAllowedForFirstAction = first.timeAllowed
         let updatedScore = first.newScore
         
         // Take a turn
@@ -78,6 +78,5 @@ internal final class ViewController: UIViewController, GKGameCenterControllerDel
             fatalError("Invalid swipe direction")
         }
     }
-
 }
 
