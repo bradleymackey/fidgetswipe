@@ -40,12 +40,12 @@ if successful {
 public final class Game {
     
     /// The time allowed for each move
-    public static let tapTime        = 1.0
-    public static let swipeTime      = 1.4
-    public static let shakeTime      = 4.0
-    public static let upsideDownTime = 3.5
-    public static let faceTime       = 4.0
-    public static let volumeTime     = 3.0
+    public static let tapTime        = 1.5
+    public static let swipeTime      = 1.5
+    public static let shakeTime      = 1.5
+    public static let upsideDownTime = 1.5
+    public static let faceTime       = 1.5
+    public static let volumeTime     = 1.5
     
     /// Gives a notion of state to the `Game` class.
     private enum State {

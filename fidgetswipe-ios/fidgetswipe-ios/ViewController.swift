@@ -247,7 +247,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     private func startAccelerometerUpdatesIfNeeded(forAction action:Action) {
         
         // stop acceleromter updates if this is not a motion challenege
-        if !action.isMotionChallenge && motionManager.isAccelerometerAvailable {
+        if (!action.isMotionChallenge && motionManager.isAccelerometerAvailable) || action == .shake {
             motionManager.stopAccelerometerUpdates()
             return
         }
