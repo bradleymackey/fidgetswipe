@@ -142,25 +142,28 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         // get the next turn from the game
         currentTurn = game.getNextMove()
         // animate the colour change of the icon
-        UIView.animate(withDuration: 0.1, animations: {
+        let animationDuration:TimeInterval = previousTurnValid ? 0.25 : 1
+        UIView.animate(withDuration: animationDuration, animations: {
             self.actionImageView.tintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
         }) { (_) in
-            UIView.animate(withDuration: 0.1, animations: {
-                self.actionImageView.tintColor = .white
-            })
+            self.actionImageView.tintColor = .white
+            UIView.transition(with: self.actionImageView, duration: 0.25, options: [.transitionFlipFromTop], animations: {
+                 self.actionImageView.image = self.currentTurn.image
+            }, completion: nil)
+            UIView.transition(with: self.promptLabel, duration: 0.25, options: [.transitionCrossDissolve], animations: { 
+                let prevCenterPrompt = self.promptLabel.center
+                self.promptLabel.text = self.currentTurn.action == .tap ? "TAP" : "SWIPE"
+                self.promptLabel.sizeToFit()
+                self.promptLabel.center = prevCenterPrompt
+            }, completion: nil)
+            UIView.transition(with: self.scoreLabel, duration: 0.25, options: [.transitionCrossDissolve], animations: { 
+                self.scoreLabel.text = "\(self.currentTurn.newScore)"
+                let prevCenterScore = self.scoreLabel.center
+                self.scoreLabel.sizeToFit()
+                self.scoreLabel.center = prevCenterScore
+            }, completion: nil)
         }
-        // Update labels and image view
-        self.actionImageView.image = currentTurn.image
-        let prevCenterPrompt = self.promptLabel.center
-        self.promptLabel.text = currentTurn.action == .tap ? "TAP" : "SWIPE"
-        self.promptLabel.sizeToFit()
-        self.promptLabel.center = prevCenterPrompt
-        self.scoreLabel.text = "\(currentTurn.newScore)"
-        let prevCenterScore = self.scoreLabel.center
-        self.scoreLabel.sizeToFit()
-        self.scoreLabel.center = prevCenterScore
     }
-
     
     override var prefersStatusBarHidden: Bool {
         return true
