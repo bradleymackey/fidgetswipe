@@ -40,12 +40,12 @@ if successful {
 public final class Game {
     
     /// The time allowed for each move
-    public static let tapTime        = 0.8
-    public static let swipeTime      = 1.2
-    public static let shakeTime      = 3.0
-    public static let upsideDownTime = 3.0
-    public static let faceTime       = 3.0
-    public static let volumeTime     = 2.0
+    public static let tapTime        = 1.0
+    public static let swipeTime      = 1.4
+    public static let shakeTime      = 4.0
+    public static let upsideDownTime = 3.5
+    public static let faceTime       = 4.0
+    public static let volumeTime     = 3.0
     
     /// Gives a notion of state to the `Game` class.
     private enum State {
@@ -66,11 +66,17 @@ public final class Game {
     /// The current game score.
     private var gameScore:UInt
     
+    /// Keep track of the last action, so we dont do 2 of the same actions in a row.
+    private var previousAction:Action = .volumeDown // just set it default to anything
+    
     /// The expected next move of the player.
     /// - note: `nil` if game is not currently playing.
     private var expectedPlayerMove:Action
     
     private var motionChallengesEnabled = true
+    
+    /// Keep track of when we have the first turn, because the first one should not be a motion one.
+    private var hasHadFirstTurn = false
     
     public init() {
         gameScore = 0
@@ -82,12 +88,19 @@ public final class Game {
     /// Calling this tells the game it should progress to a new move.
     public func getNextMove() -> TurnData {
         expectedPlayerMove = Action.random()
-        // if motion challenges are not enabled, do not choose motion challenges.
-        if !motionChallengesEnabled {
-            while expectedPlayerMove.isMotionChallenge {
+        // if motion challenges are not enabled, do not choose motion challenges (also do not perform a motion challenge for the first turn AND we cannot have 2 motion challenges in a row).
+        // make sure not to repeat the same action 2 times in a row
+        if !motionChallengesEnabled || !hasHadFirstTurn || previousAction.isMotionChallenge {
+            hasHadFirstTurn = true
+            while expectedPlayerMove.isMotionChallenge || expectedPlayerMove == previousAction {
+                expectedPlayerMove = Action.random()
+            }
+        } else {
+            while expectedPlayerMove == previousAction {
                 expectedPlayerMove = Action.random()
             }
         }
+        previousAction = expectedPlayerMove
         return TurnData(action: expectedPlayerMove, newScore: gameScore, timeForMove: time(forAction: expectedPlayerMove))
     }
     
@@ -118,6 +131,7 @@ public final class Game {
         // evaluate this move we have just taken
         if move != expectedPlayerMove {
             currentState = .notPlaying
+            hasHadFirstTurn = false
             return false
         } else {
             currentState = .playing

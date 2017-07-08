@@ -58,9 +58,9 @@ public enum Action: Int {
     
     public var isMotionChallenge:Bool {
         switch self {
-        case .shake, .upsideDown, .faceUp, .faceDown:
+        case .upsideDown, .faceUp, .faceDown:
             return true
-        case .tap, .swipeRight, .swipeLeft, .swipeDown, .swipeUp, .volumeUp, .volumeDown:
+        case .tap, .swipeRight, .swipeLeft, .swipeDown, .swipeUp, .volumeUp, .volumeDown, .shake:
             return false
         }
     }
