@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,7 +17,7 @@
 		970131BC1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131BB1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift */; };
 		970131C71F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */; };
 		974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974594E51F0FAA290078E736 /* LeaderboardManager.swift */; };
-		97BFCDD31F0FB87400FAE239 /* GameConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BFCDD21F0FB87400FAE239 /* GameConstants.swift */; };
+		97B669A41F10DBFA0079D7CB /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97B669A31F10DBFA0079D7CB /* GameKit.framework */; };
 		97BFCDD51F0FBB5D00FAE239 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */; };
 		97BFCDD71F0FC78200FAE239 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BFCDD61F0FC78200FAE239 /* Game.swift */; };
 		97BFCDDE1F0FC83C00FAE239 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BFCDDD1F0FC83C00FAE239 /* Action.swift */; };
@@ -62,7 +62,7 @@
 		970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fidgetswipe_iosUITests.swift; sourceTree = "<group>"; };
 		970131C81F0FA64E00E9B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		974594E51F0FAA290078E736 /* LeaderboardManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardManager.swift; sourceTree = "<group>"; };
-		97BFCDD21F0FB87400FAE239 /* GameConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameConstants.swift; sourceTree = "<group>"; };
+		97B669A31F10DBFA0079D7CB /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		97BFCDD61F0FC78200FAE239 /* Game.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		97BFCDDD1F0FC83C00FAE239 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
@@ -79,6 +79,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C49A787BD61A8741C647969B /* Pods_fidgetswipe_ios.framework in Frameworks */,
+				97B669A41F10DBFA0079D7CB /* GameKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +105,7 @@
 		1B0A51B7B0D02E346B9CBF8B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				97B669A31F10DBFA0079D7CB /* GameKit.framework */,
 				86DE2F427AA4277B57C5C492 /* Pods_fidgetswipe_ios.framework */,
 				9F8AE2447B3289BDF4D06D38 /* Pods_fidgetswipe_iosTests.framework */,
 				42B5466B120DDB57B628DA5D /* Pods_fidgetswipe_iosUITests.framework */,
@@ -173,7 +175,6 @@
 				97BFCDD61F0FC78200FAE239 /* Game.swift */,
 				97BFCDDF1F0FE30400FAE239 /* TurnData.swift */,
 				97BFCDDD1F0FC83C00FAE239 /* Action.swift */,
-				97BFCDD21F0FB87400FAE239 /* GameConstants.swift */,
 			);
 			name = "Game Model";
 			sourceTree = "<group>";
@@ -278,6 +279,11 @@
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = U2GCDMVV7S;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.GameCenter = {
+								enabled = 1;
+							};
+						};
 					};
 					970131B61F0FA64E00E9B267 = {
 						CreatedOnToolsVersion = 8.3.3;
@@ -294,7 +300,7 @@
 				};
 			};
 			buildConfigurationList = 9701319E1F0FA64D00E9B267 /* Build configuration list for PBXProject "fidgetswipe-ios" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -485,7 +491,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				970131A91F0FA64E00E9B267 /* ViewController.swift in Sources */,
-				97BFCDD31F0FB87400FAE239 /* GameConstants.swift in Sources */,
 				974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */,
 				97BFCDE01F0FE30400FAE239 /* TurnData.swift in Sources */,
 				97BFCDDE1F0FC83C00FAE239 /* Action.swift in Sources */,
