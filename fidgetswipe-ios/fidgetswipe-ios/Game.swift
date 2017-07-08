@@ -84,7 +84,6 @@ public final class Game {
         expectedPlayerMove = .tap // doesn't matter, this is randomly set on the first turn
     }
     
-    
     /// Calling this tells the game it should progress to a new move.
     public func getNextMove() -> TurnData {
         expectedPlayerMove = Action.random()

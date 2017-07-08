@@ -257,13 +257,13 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
                 print("Accelerometer update error: \(err.localizedDescription)")
             } else if let accData = accelerometerData {
                 print("accel: x:\(accData.acceleration.x) y:\(accData.acceleration.y) z:\(accData.acceleration.z)")
-                self.handleActionVerification(accelerometerData: accData, action: action)
+                self.handleMotionActionVerification(accelerometerData: accData, action: action)
             }
         })
         
     }
     
-    private func handleActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
+    private func handleMotionActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
         let acceleration = accelerometerData.acceleration
         switch action {
         case .faceDown:
@@ -279,7 +279,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
                 progressGame(previousTurnValid: game.take(move: .upsideDown))
             }
         default:
-            print("Should not be called! Attemping to verify device position, even though this is not a motion challenge.")
+            print("[WARN] Attemping to verify device position even though this is not a motion challenge!")
         }
     }
     
