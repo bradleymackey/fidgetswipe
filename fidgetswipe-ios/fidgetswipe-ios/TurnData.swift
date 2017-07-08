@@ -26,6 +26,9 @@ public struct TurnData {
     /// The user's score as it stands at the moment.
     public let newScore:UInt
     
+    /// The time allowed for this move
+    public let timeForMove:TimeInterval
+    
     /// The image that should instruct ther user what to do.
     public var image:UIImage {
         switch action {

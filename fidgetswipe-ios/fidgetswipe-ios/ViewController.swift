@@ -208,9 +208,10 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         self.progressBar.progress = 1
         UIView.animate(withDuration: 0, animations: {
             self.progressBar.layoutIfNeeded()
-        }, completion: { (success) in
+        }, completion: { [currentTurn] (success) in
+            guard let turn = currentTurn else { return }
             self.progressBar.progress = 0
-            UIView.animate(withDuration: Game.moveTime) {
+            UIView.animate(withDuration: turn.timeForMove) {
                 self.progressBar.layoutIfNeeded()
             }
         })

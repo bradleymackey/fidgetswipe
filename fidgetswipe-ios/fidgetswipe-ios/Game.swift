@@ -40,7 +40,9 @@ if successful {
 public final class Game {
     
     /// The time allowed for each move
-    public static let moveTime = 0.8
+    public static let tapTime = 0.7
+    public static let swipeTime = 0.95
+    public static let shakeTime = 3
     
     /// Gives a notion of state to the `Game` class.
     private enum State {
@@ -75,7 +77,16 @@ public final class Game {
     /// Calling this tells the game it should progress to a new move.
     public func getNextMove() -> TurnData {
         expectedPlayerMove = Action.random()
-        return TurnData(action: expectedPlayerMove, newScore: gameScore)
+        return TurnData(action: expectedPlayerMove, newScore: gameScore, timeForMove: time(forAction: expectedPlayerMove))
+    }
+    
+    private func time(forAction action:Action) -> TimeInterval {
+        switch action {
+        case .swipeDown, .swipeUp, .swipeLeft, .swipeRight:
+            return Game.swipeTime
+        case .tap:
+            return Game.tapTime
+        }
     }
     
     /// Player calls this when they take a move.
