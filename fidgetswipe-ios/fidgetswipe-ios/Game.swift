@@ -40,7 +40,7 @@ if successful {
 public final class Game {
     
     /// The time allowed for each move
-    public static let moveTime = 0.75
+    public static let moveTime = 0.8
     
     /// Gives a notion of state to the `Game` class.
     private enum State {

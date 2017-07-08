@@ -17,6 +17,10 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     public static let greenColor = UIColor(colorLiteralRed: 0x4c/0xff, green: 0xd9/0xff, blue: 0x64/0xff, alpha: 1)
     public static let redColor = UIColor(colorLiteralRed: 0xff/0xff, green: 0x3b/0xff, blue: 0x30/0xff, alpha: 1)
     
+    public static let nextMoveAnimationTime:TimeInterval = 0.25
+    public static let restoreProgressBarAnimationTime:TimeInterval = 0.1
+    
+    
     /// Manages the whole game.
     private var game = Game()
     private var currentTurn:TurnData!
@@ -34,7 +38,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private lazy var promptLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.boldSystemFont(ofSize: 13)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: 1)
         label.textColor = .lightGray
         let thirdWidth:CGFloat = self.view.frame.width/3
         let halfWidth:CGFloat = self.view.frame.width/2
@@ -44,13 +48,22 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private lazy var scoreLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.boldSystemFont(ofSize: 55)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 53, weight: 1)
         label.textColor = .white
         label.text = ""
         label.sizeToFit()
         label.center = self.view.center
         label.textAlignment = .center
         return label
+    }()
+    
+    private lazy var progressBar:UIProgressView = {
+        let progress = UIProgressView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 0))
+        progress.progressViewStyle = .bar
+        progress.setProgress(1, animated:false)
+        progress.trackTintColor = .clear
+        progress.progressTintColor = .white
+        return progress
     }()
     
     
@@ -70,12 +83,11 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         self.view.addSubview(actionImageView)
         self.view.addSubview(scoreLabel)
         self.view.addSubview(promptLabel)
+        self.view.addSubview(progressBar)
         
         // setup the game
-        progressGame(previousTurnValid: true)
+        progressGame(previousTurnValid: false)
     }
-    
-
     
     private func setupGestureRecognisers() {
         
@@ -113,7 +125,6 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     @objc
     func gestureSwiped(swipeGestureRecognser: UISwipeGestureRecognizer) {
-        
         switch swipeGestureRecognser.direction {
         case SwipeDirection.right:
             Analytics.logEvent("swipe_right", parameters: nil)
@@ -135,34 +146,65 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     private func progressGame(previousTurnValid: Bool) {
         
         // submit score if the game is over
-        if !previousTurnValid {
+        if !previousTurnValid && currentTurn != nil {
             LeaderboardManager.shared.submit(score: currentTurn.newScore)
         }
         
         // get the next turn from the game
         currentTurn = game.getNextMove()
         // animate the colour change of the icon
-        let animationDuration:TimeInterval = previousTurnValid ? 0.25 : 1
+
+        let animationDuration:TimeInterval = previousTurnValid ? ViewController.nextMoveAnimationTime : 1
+        self.progressBar.layer.removeAllAnimations()
+        self.progressBar.progress = 1
         UIView.animate(withDuration: animationDuration, animations: {
             self.actionImageView.tintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
+            self.progressBar.layoutIfNeeded()
+            self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
         }) { (_) in
             self.actionImageView.tintColor = .white
-            UIView.transition(with: self.actionImageView, duration: 0.25, options: [.transitionFlipFromTop], animations: {
+            self.progressBar.progressTintColor = .white
+            UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
                  self.actionImageView.image = self.currentTurn.image
-            }, completion: nil)
-            UIView.transition(with: self.promptLabel, duration: 0.25, options: [.transitionCrossDissolve], animations: { 
+                self.progressBar.layer.removeAllAnimations()
+                
+            }, completion: { _ in
+                // on the image changing...
+                // update the score label
+                self.updateScoreLabel()
+                // restart the progress bar animation if turn was success, or restore to full if we lost.
+                if previousTurnValid {
+                    self.startProgressBarAnimating()
+                }
+            })
+            UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
                 let prevCenterPrompt = self.promptLabel.center
                 self.promptLabel.text = self.currentTurn.action == .tap ? "TAP" : "SWIPE"
                 self.promptLabel.sizeToFit()
                 self.promptLabel.center = prevCenterPrompt
             }, completion: nil)
-            UIView.transition(with: self.scoreLabel, duration: 0.25, options: [.transitionCrossDissolve], animations: { 
-                self.scoreLabel.text = "\(self.currentTurn.newScore)"
-                let prevCenterScore = self.scoreLabel.center
-                self.scoreLabel.sizeToFit()
-                self.scoreLabel.center = prevCenterScore
-            }, completion: nil)
         }
+        
+    }
+    
+    private func updateScoreLabel() {
+        self.scoreLabel.text = "\(self.currentTurn.newScore)"
+        let prevCenterScore = self.scoreLabel.center
+        self.scoreLabel.sizeToFit()
+        self.scoreLabel.center = prevCenterScore
+    }
+    
+    private func startProgressBarAnimating() {
+        self.progressBar.layer.removeAllAnimations()
+        self.progressBar.progress = 1
+        UIView.animate(withDuration: 0, animations: {
+            self.progressBar.layoutIfNeeded()
+        }, completion: { (success) in
+            self.progressBar.progress = 0
+            UIView.animate(withDuration: Game.moveTime) {
+                self.progressBar.layoutIfNeeded()
+            }
+        })
     }
     
     override var prefersStatusBarHidden: Bool {
