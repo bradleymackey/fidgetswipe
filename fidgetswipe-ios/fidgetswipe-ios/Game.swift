@@ -88,7 +88,6 @@ public final class Game {
         // evaluate this move we have just taken
         if move != expectedPlayerMove {
             currentState = .notPlaying
-            gameScore = 0
             return false
         } else {
             currentState = .playing

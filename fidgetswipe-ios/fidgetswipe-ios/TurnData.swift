@@ -7,18 +7,17 @@
 //
 
 import Foundation
+import UIKit
 
 /// A nice packaged structure that contains all the information we need when we start a new turn
 public struct TurnData {
     
-    /// A simple structure to store information about the image that should be displayed to instruct the user what to do.
-    public struct ImageInfo {
-        
-        /// The name of the image in the asset catalogue.
-        public let imageName:String
-        
-        /// The rotation that the image should be presented at.
-        public let imageRotationAngle:Double
+    private struct Images {
+        fileprivate static let tap = UIImage(named: "tap")!
+        fileprivate static let swipeUp = UIImage(named: "swipe_up")!
+        fileprivate static let swipeLeft = UIImage(named: "swipe_left")!
+        fileprivate static let swipeDown = UIImage(named: "swipe_down")!
+        fileprivate static let swipeRight = UIImage(named: "swipe_right")!
     }
     
     /// The action that this turn requires from the user.
@@ -27,19 +26,19 @@ public struct TurnData {
     /// The user's score as it stands at the moment.
     public let newScore:UInt
     
-    /// Information about the image that should instruct ther user what to do.
-    public var imageInfo:TurnData.ImageInfo {
+    /// The image that should instruct ther user what to do.
+    public var image:UIImage {
         switch action {
         case .tap:
-            return ImageInfo(imageName: "tap", imageRotationAngle: 0)
+            return TurnData.Images.tap
         case .swipeUp:
-            return ImageInfo(imageName: "swipe_arrow", imageRotationAngle: 0)
+            return TurnData.Images.swipeUp
         case .swipeLeft:
-            return ImageInfo(imageName: "swipe_arrow", imageRotationAngle: .pi/2)
+            return TurnData.Images.swipeLeft
         case .swipeDown:
-            return ImageInfo(imageName: "swipe_arrow", imageRotationAngle: .pi)
+            return TurnData.Images.swipeDown
         case .swipeRight:
-            return ImageInfo(imageName: "swipe_arrow", imageRotationAngle: (.pi/2)*3)
+            return TurnData.Images.swipeRight
         }
     }
 }
