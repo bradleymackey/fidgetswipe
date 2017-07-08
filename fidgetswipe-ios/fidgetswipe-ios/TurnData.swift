@@ -12,14 +12,6 @@ import UIKit
 /// A nice packaged structure that contains all the information we need when we start a new turn
 public struct TurnData {
     
-    private struct Images {
-        fileprivate static let tap = UIImage(named: "tap")!.withRenderingMode(.alwaysTemplate)
-        fileprivate static let swipeUp = UIImage(named: "swipe_up")!.withRenderingMode(.alwaysTemplate)
-        fileprivate static let swipeLeft = UIImage(named: "swipe_left")!.withRenderingMode(.alwaysTemplate)
-        fileprivate static let swipeDown = UIImage(named: "swipe_down")!.withRenderingMode(.alwaysTemplate)
-        fileprivate static let swipeRight = UIImage(named: "swipe_right")!.withRenderingMode(.alwaysTemplate)
-    }
-    
     /// The action that this turn requires from the user.
     public let action:Action
     
@@ -29,19 +21,39 @@ public struct TurnData {
     /// The time allowed for this move
     public let timeForMove:TimeInterval
     
+    private static func image(forName name:String) -> UIImage {
+        if let image = UIImage(named: name) {
+            return image.withRenderingMode(.alwaysTemplate)
+        } else {
+            fatalError("Invalid image name!")
+        }
+    }
+    
     /// The image that should instruct ther user what to do.
     public var image:UIImage {
         switch action {
         case .tap:
-            return TurnData.Images.tap
+            return TurnData.image(forName: "tap")
         case .swipeUp:
-            return TurnData.Images.swipeUp
+            return TurnData.image(forName: "swipe_up")
         case .swipeLeft:
-            return TurnData.Images.swipeLeft
+            return TurnData.image(forName: "swipe_left")
         case .swipeDown:
-            return TurnData.Images.swipeDown
+            return TurnData.image(forName: "swipe_down")
         case .swipeRight:
-            return TurnData.Images.swipeRight
+            return TurnData.image(forName: "swipe_right")
+        case .shake:
+            return TurnData.image(forName: "shake")
+        case .upsideDown:
+            return TurnData.image(forName: "upside_down")
+        case .volumeUp:
+            return TurnData.image(forName: "volume_up")
+        case .volumeDown:
+            return TurnData.image(forName: "volume_down")
+        case .faceUp:
+            return TurnData.image(forName: "face_up")
+        case .faceDown:
+            return TurnData.image(forName: "face_down")
         }
     }
 }

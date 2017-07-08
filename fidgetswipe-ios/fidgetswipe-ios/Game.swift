@@ -40,9 +40,12 @@ if successful {
 public final class Game {
     
     /// The time allowed for each move
-    public static let tapTime = 0.7
-    public static let swipeTime = 0.95
-    public static let shakeTime = 3
+    public static let tapTime        = 0.8
+    public static let swipeTime      = 1.2
+    public static let shakeTime      = 3.0
+    public static let upsideDownTime = 3.0
+    public static let faceTime       = 3.0
+    public static let volumeTime     = 2.0
     
     /// Gives a notion of state to the `Game` class.
     private enum State {
@@ -67,6 +70,8 @@ public final class Game {
     /// - note: `nil` if game is not currently playing.
     private var expectedPlayerMove:Action
     
+    private var motionChallengesEnabled = true
+    
     public init() {
         gameScore = 0
         currentState = .notPlaying
@@ -77,6 +82,12 @@ public final class Game {
     /// Calling this tells the game it should progress to a new move.
     public func getNextMove() -> TurnData {
         expectedPlayerMove = Action.random()
+        // if motion challenges are not enabled, do not choose motion challenges.
+        if !motionChallengesEnabled {
+            while expectedPlayerMove.isMotionChallenge {
+                expectedPlayerMove = Action.random()
+            }
+        }
         return TurnData(action: expectedPlayerMove, newScore: gameScore, timeForMove: time(forAction: expectedPlayerMove))
     }
     
@@ -86,6 +97,14 @@ public final class Game {
             return Game.swipeTime
         case .tap:
             return Game.tapTime
+        case .volumeUp, .volumeDown:
+            return Game.volumeTime
+        case .faceDown, .faceUp:
+            return Game.faceTime
+        case .upsideDown:
+            return Game.upsideDownTime
+        case .shake:
+            return Game.shakeTime
         }
     }
     
@@ -105,6 +124,11 @@ public final class Game {
             gameScore += 1
             return true
         }
+    }
+    
+    /// Disables motion challenges for the game. They cannot be re-enabled.
+    public func disableMotionChallenges() {
+        motionChallengesEnabled = false
     }
     
 }

@@ -8,15 +8,20 @@
 
 import UIKit
 import GameKit
+import CoreMotion
 import FirebaseAnalytics
 
 public typealias SwipeDirection = UISwipeGestureRecognizerDirection
 
 final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
+    // MARK: - Static Properties
+    
     public static let greenColor = UIColor(colorLiteralRed: 0x4c/0xff, green: 0xd9/0xff, blue: 0x64/0xff, alpha: 1)
     public static let redColor = UIColor(colorLiteralRed: 0xff/0xff, green: 0x3b/0xff, blue: 0x30/0xff, alpha: 1)
     
+    public static let greenFlashAnimationTime:TimeInterval = 0.2
+    public static let redFlashAnimationTime:TimeInterval = 0.5
     public static let nextMoveAnimationTime:TimeInterval = 0.25
     public static let restoreProgressBarAnimationTime:TimeInterval = 0.1
     
@@ -28,12 +33,14 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     /// Variable so we know when we should accept user input (spam prevention)
     private var acceptInput = true
     
+    /// Motion manager to read accelerometer events.
+    private var motionManager:CMMotionManager!
+    
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
         let thirdWidth:CGFloat = self.view.frame.width/3
-        let halfWidth:CGFloat = self.view.frame.width/2
         imageView.frame.size = CGSize(width: thirdWidth, height: thirdWidth)
-        imageView.center = CGPoint(x: halfWidth, y: thirdWidth)
+        imageView.center = self.view.center
         imageView.contentMode = .scaleAspectFill
         imageView.tintColor = .white
         return imageView
@@ -44,24 +51,25 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: 1)
         label.textColor = .lightGray
         let thirdWidth:CGFloat = self.view.frame.width/3
-        let halfWidth:CGFloat = self.view.frame.width/2
-        label.center = CGPoint(x: halfWidth, y: thirdWidth+(thirdWidth/2)+10)
+        label.center = CGPoint(x: self.view.center.x, y: self.view.center.y+(thirdWidth/2)+10)
         return label
     }()
     
     private lazy var scoreLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.monospacedDigitSystemFont(ofSize: 53, weight: 1)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 53, weight: 0.8)
         label.textColor = .white
         label.text = ""
         label.sizeToFit()
-        label.center = self.view.center
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        let halfWidth:CGFloat = self.view.frame.width/2
+        label.center = CGPoint(x: halfWidth, y: thirdWidth)
         label.textAlignment = .center
         return label
     }()
     
     private lazy var progressBar:UIProgressView = {
-        let progress = UIProgressView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 0))
+        let progress = UIProgressView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 0)) // height is auto-set
         progress.progressViewStyle = .bar
         progress.setProgress(1, animated:false)
         progress.trackTintColor = .clear
@@ -82,6 +90,9 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         // Setup the Game Center ready for posting leaderboard scores.
         LeaderboardManager.shared.set(presentingViewController: self)
         
+        // Setup the motion manager
+        setupMotionManager()
+        
         // Add the views for the game
         self.view.addSubview(actionImageView)
         self.view.addSubview(scoreLabel)
@@ -90,6 +101,28 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         
         // setup the game
         progressGame(previousTurnValid: false)
+        
+    }
+    
+    private func setupMotionManager() {
+        motionManager = CMMotionManager()
+        
+        if !motionManager.isAccelerometerAvailable {
+            Analytics.logEvent("accelerometer_not_ava", parameters: nil)
+            print("Accelerometer not avaiable, motion challenges are disabled.")
+            game.disableMotionChallenges()
+            return
+        }
+            
+        Analytics.logEvent("accelerometer_ava", parameters: nil)
+        motionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: { (accelerometerData, error) in
+            if let err = error {
+                print("Accelerometer update error: \(err.localizedDescription)")
+            } else if let accData = accelerometerData {
+                print("accel: x:\(accData.acceleration.x) y:\(accData.acceleration.y) z:\(accData.acceleration.z)")
+            }
+        })
+
     }
     
     private func setupGestureRecognisers() {
@@ -148,6 +181,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         }
     }
     
+    /// Progress the state of the game to the next turn.
     private func progressGame(previousTurnValid: Bool) {
         
         // prevent spamming
@@ -162,7 +196,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         currentTurn = game.getNextMove()
         // animate the colour change of the icon
 
-        let animationDuration:TimeInterval = previousTurnValid ? ViewController.nextMoveAnimationTime : 1
+        let animationDuration:TimeInterval = previousTurnValid ? ViewController.greenFlashAnimationTime : ViewController.redFlashAnimationTime
         self.progressBar.layer.removeAllAnimations()
         self.progressBar.progress = 1
         UIView.animate(withDuration: animationDuration, animations: {
@@ -175,7 +209,6 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             self.progressBar.progressTintColor = .white
             UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
                  self.actionImageView.image = self.currentTurn.image
-                self.progressBar.layer.removeAllAnimations()
             }, completion: { _ in
                 // on the image changing...
                 // accept input again
@@ -187,7 +220,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             })
             UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
                 let prevCenterPrompt = self.promptLabel.center
-                self.promptLabel.text = self.currentTurn.action == .tap ? "TAP" : "SWIPE"
+                self.promptLabel.text = self.currentTurn.action.description
                 self.promptLabel.sizeToFit()
                 self.promptLabel.center = prevCenterPrompt
             }, completion: nil)
@@ -206,15 +239,11 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         self.progressBar.layer.removeAllAnimations()
         // force the progress to be 1 before we start if it is not already at 1
         self.progressBar.progress = 1
-        UIView.animate(withDuration: 0, animations: {
+        self.progressBar.layoutIfNeeded()
+        self.progressBar.progress = 0
+        UIView.animate(withDuration: currentTurn.timeForMove) {
             self.progressBar.layoutIfNeeded()
-        }, completion: { [currentTurn] (success) in
-            guard let turn = currentTurn else { return }
-            self.progressBar.progress = 0
-            UIView.animate(withDuration: turn.timeForMove) {
-                self.progressBar.layoutIfNeeded()
-            }
-        })
+        }
     }
     
     override var prefersStatusBarHidden: Bool {

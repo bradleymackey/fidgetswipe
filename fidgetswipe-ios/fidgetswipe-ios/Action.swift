@@ -16,9 +16,15 @@ public enum Action: Int {
     case swipeDown  = 2
     case swipeRight = 3
     case swipeLeft  = 4
+    case shake      = 5
+    case upsideDown = 6
+    case volumeUp   = 7
+    case volumeDown = 8
+    case faceUp     = 9
+    case faceDown   = 10
     
     /// The total number of actions in the enum.
-    public static let totalActions:UInt32 = 5
+    public static let totalActions:UInt32 = 11
     
     public static func random() -> Action {
         let randomNumber = arc4random_uniform(Action.totalActions)
@@ -26,6 +32,36 @@ public enum Action: Int {
             return action
         } else {
             fatalError("This rawValue (\(randomNumber)) does not equate to a vaild 'Action'.")
+        }
+    }
+    
+    public var description:String {
+        switch self {
+        case .tap:
+            return "TAP"
+        case .swipeUp, .swipeDown, .swipeLeft, .swipeRight:
+            return "SWIPE"
+        case .shake:
+            return "SHAKE"
+        case .upsideDown:
+            return "UPSIDE DOWN"
+        case .volumeUp:
+            return "VOLUME UP"
+        case .volumeDown:
+            return "VOLUME DOWN"
+        case .faceUp:
+            return "FACE DEVICE UP"
+        case .faceDown:
+            return "FACE DEVICE DOWN"
+        }
+    }
+    
+    public var isMotionChallenge:Bool {
+        switch self {
+        case .shake, .upsideDown, .faceUp, .faceDown:
+            return true
+        case .tap, .swipeRight, .swipeLeft, .swipeDown, .swipeUp, .volumeUp, .volumeDown:
+            return false
         }
     }
 }
