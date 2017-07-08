@@ -14,6 +14,9 @@ public typealias SwipeDirection = UISwipeGestureRecognizerDirection
 
 final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
+    public static let greenColor = UIColor(colorLiteralRed: 0x4c/0xff, green: 0xd9/0xff, blue: 0x64/0xff, alpha: 1)
+    public static let redColor = UIColor(colorLiteralRed: 0xff/0xff, green: 0x3b/0xff, blue: 0x30/0xff, alpha: 1)
+    
     /// Manages the whole game.
     private var game = Game()
     private var currentTurn:TurnData!
@@ -25,13 +28,14 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         imageView.frame.size = CGSize(width: thirdWidth, height: thirdWidth)
         imageView.center = CGPoint(x: halfWidth, y: thirdWidth)
         imageView.contentMode = .scaleAspectFill
+        imageView.tintColor = .white
         return imageView
     }()
     
     private lazy var promptLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.boldSystemFont(ofSize: 12)
-        label.textColor = .white
+        label.font = UIFont.boldSystemFont(ofSize: 13)
+        label.textColor = .lightGray
         let thirdWidth:CGFloat = self.view.frame.width/3
         let halfWidth:CGFloat = self.view.frame.width/2
         label.center = CGPoint(x: halfWidth, y: thirdWidth+(thirdWidth/2)+10)
@@ -40,7 +44,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private lazy var scoreLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.boldSystemFont(ofSize: 60)
+        label.font = UIFont.boldSystemFont(ofSize: 55)
         label.textColor = .white
         label.text = ""
         label.sizeToFit()
@@ -130,41 +134,33 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private func progressGame(previousTurnValid: Bool) {
         
-        if previousTurnValid {
-            // go to next game
-            prepareNextTurn()
-        } else {
-            endGame()
+        // submit score if the game is over
+        if !previousTurnValid {
+            LeaderboardManager.shared.submit(score: currentTurn.newScore)
         }
-    }
-    
-    private func prepareNextTurn() {
+        
+        // get the next turn from the game
         currentTurn = game.getNextMove()
-        UIView.transition(with: actionImageView, duration: 0.1, options: [.transitionCurlDown], animations: { [currentTurn] in
-            guard let turn = currentTurn else { fatalError("No turn found in animation block for image.") }
-            self.actionImageView.image = turn.image
-        }, completion: nil)
-        UIView.transition(with: promptLabel, duration: 0.05, options: [.transitionCrossDissolve], animations: { [currentTurn] in
-            guard let turn = currentTurn else { fatalError("No turn found in animation block for prompt label.") }
-            let prevCenter = self.promptLabel.center
-            self.promptLabel.text = turn.action == .tap ? "TAP" : "SWIPE"
-            self.promptLabel.sizeToFit()
-            self.promptLabel.center = prevCenter
-        }, completion: nil)
-        UIView.transition(with: scoreLabel, duration: 0.05, options: [.transitionCrossDissolve], animations: { [currentTurn] in
-            guard let turn = currentTurn else { fatalError("No turn found in animation block for score label.") }
-            self.scoreLabel.text = "\(turn.newScore)"
-            let prevCenter = self.scoreLabel.center
-            self.scoreLabel.sizeToFit()
-            self.scoreLabel.center = prevCenter
-        }, completion: nil)
+        // animate the colour change of the icon
+        UIView.animate(withDuration: 0.1, animations: {
+            self.actionImageView.tintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
+        }) { (_) in
+            UIView.animate(withDuration: 0.1, animations: {
+                self.actionImageView.tintColor = .white
+            })
+        }
+        // Update labels and image view
+        self.actionImageView.image = currentTurn.image
+        let prevCenterPrompt = self.promptLabel.center
+        self.promptLabel.text = currentTurn.action == .tap ? "TAP" : "SWIPE"
+        self.promptLabel.sizeToFit()
+        self.promptLabel.center = prevCenterPrompt
+        self.scoreLabel.text = "\(currentTurn.newScore)"
+        let prevCenterScore = self.scoreLabel.center
+        self.scoreLabel.sizeToFit()
+        self.scoreLabel.center = prevCenterScore
     }
-    
-    private func endGame() {
-        LeaderboardManager.shared.submit(score: currentTurn.newScore)
-        prepareNextTurn()
-        // TODO: show leaderboard button
-    }
+
     
     override var prefersStatusBarHidden: Bool {
         return true
