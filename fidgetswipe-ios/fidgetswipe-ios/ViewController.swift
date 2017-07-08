@@ -25,6 +25,9 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     private var game = Game()
     private var currentTurn:TurnData!
     
+    /// Variable so we know when we should accept user input (spam prevention)
+    private var acceptInput = true
+    
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
         let thirdWidth:CGFloat = self.view.frame.width/3
@@ -118,6 +121,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     @objc
     func gestureTapped(tapGestureRecogniser: UITapGestureRecognizer) {
+        if !acceptInput { return }
         Analytics.logEvent("tap", parameters: nil)
         progressGame(previousTurnValid: game.take(move: .tap))
     }
@@ -125,6 +129,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     @objc
     func gestureSwiped(swipeGestureRecognser: UISwipeGestureRecognizer) {
+        if !acceptInput { return }
         switch swipeGestureRecognser.direction {
         case SwipeDirection.right:
             Analytics.logEvent("swipe_right", parameters: nil)
@@ -145,6 +150,9 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private func progressGame(previousTurnValid: Bool) {
         
+        // prevent spamming
+        acceptInput = false
+        
         // submit score if the game is over
         if !previousTurnValid && currentTurn != nil {
             LeaderboardManager.shared.submit(score: currentTurn.newScore)
@@ -162,17 +170,17 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             self.progressBar.layoutIfNeeded()
             self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
         }) { (_) in
+            self.updateScoreLabel()
             self.actionImageView.tintColor = .white
             self.progressBar.progressTintColor = .white
             UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
                  self.actionImageView.image = self.currentTurn.image
                 self.progressBar.layer.removeAllAnimations()
-                
             }, completion: { _ in
                 // on the image changing...
-                // update the score label
-                self.updateScoreLabel()
-                // restart the progress bar animation if turn was success, or restore to full if we lost.
+                // accept input again
+                self.acceptInput = true
+                // restart the progress bar animation if turn was success
                 if previousTurnValid {
                     self.startProgressBarAnimating()
                 }
@@ -196,6 +204,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private func startProgressBarAnimating() {
         self.progressBar.layer.removeAllAnimations()
+        // force the progress to be 1 before we start if it is not already at 1
         self.progressBar.progress = 1
         UIView.animate(withDuration: 0, animations: {
             self.progressBar.layoutIfNeeded()
