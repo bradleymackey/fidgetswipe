@@ -32,10 +32,13 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     private var currentTurn:TurnData!
     
     /// Variable so we know when we should accept user input (spam prevention)
-    private var acceptInput = true
+    private var acceptInput = false
     
     /// Motion manager to read accelerometer events.
     private var motionManager:CMMotionManager!
+    
+    /// The previous level of volume.
+    private var previousVolumeLevel:Float = -1
     
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
@@ -84,6 +87,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         
         // hide volume indicator
         hideVolumeIndicator()
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.volumeChanged(notification:)), name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
         
         // Become the first responder
         self.becomeFirstResponder()
@@ -113,8 +117,33 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private func hideVolumeIndicator() {
         let volumeView = MPVolumeView(frame: .zero)
+        volumeView.center = CGPoint(x: -100, y: -100)
+        volumeView.showsRouteButton = false
+        volumeView.showsVolumeSlider = true
+        volumeView.isHidden = false
         self.view.addSubview(volumeView)
     }
+
+
+    @objc private func volumeChanged(notification:Notification) {
+        let vol = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as! Float
+        defer { previousVolumeLevel = vol }
+        print("volume! \(vol)")
+        if !acceptInput { return }
+        if previousVolumeLevel == -1 {
+            if currentTurn.action == .volumeUp {
+                progressGame(previousTurnValid: game.take(move: .volumeUp))
+            } else {
+                progressGame(previousTurnValid: game.take(move: .volumeDown))
+            }
+        } else {
+            if vol == 0 || vol < previousVolumeLevel {
+                progressGame(previousTurnValid: game.take(move: .volumeDown))
+            } else {
+                progressGame(previousTurnValid: game.take(move: .volumeUp))
+            }
+        }
+     }
     
     private func setupMotionManager() {
         motionManager = CMMotionManager()
