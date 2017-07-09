@@ -55,7 +55,7 @@ public struct TurnData {
         case .faceDown:
 			// just flip the face_up image for the face down image.
             let upImage = TurnData.image(forName: "face_up")
-			return UIImage(cgImage: upImage.cgImage!, scale: 1, orientation: .downMirrored)
+			return UIImage(cgImage: upImage.cgImage!, scale: 1, orientation: .downMirrored).withRenderingMode(.alwaysTemplate)
         }
     }
 }
