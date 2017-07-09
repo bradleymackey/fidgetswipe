@@ -50,9 +50,9 @@ public enum Action: Int {
         case .volumeDown:
             return "VOLUME DOWN"
         case .faceUp:
-            return "FACE DEVICE UP"
+            return "FACE UP"
         case .faceDown:
-            return "FACE DEVICE DOWN"
+            return "FACE DOWN"
         }
     }
     

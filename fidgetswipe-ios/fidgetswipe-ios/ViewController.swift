@@ -60,7 +60,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: 1)
         label.textColor = .lightGray
         let thirdWidth:CGFloat = self.view.frame.width/3
-        label.center = CGPoint(x: self.view.center.x, y: self.view.center.y+(thirdWidth/1.8)+10)
+        label.center = CGPoint(x: self.view.center.x, y: self.view.center.y+(thirdWidth/1.8)+20)
         return label
     }()
     
@@ -167,7 +167,6 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     private func setupMotionManager() {
         motionManager = CMMotionManager()
-        
         if !motionManager.isAccelerometerAvailable {
             Analytics.logEvent("accelerometer_not_ava", parameters: nil)
             print("Accelerometer not avaiable, motion challenges are disabled.")
@@ -176,7 +175,6 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         } else {
             Analytics.logEvent("accelerometer_ava", parameters: nil)
         }
-
     }
     
     private func setupGestureRecognisers() {
@@ -304,7 +302,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             return
         }
         
-        // START ACCELEROMETER UPDATE
+        // *** START ACCELEROMETER UPDATES ***
         // put all the accelerometer data into an operation queue to handle them
         motionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: { (accelerometerData, error) in
             if !self.acceptInput { return }
