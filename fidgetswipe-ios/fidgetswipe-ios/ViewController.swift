@@ -183,7 +183,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         
         // setup the game's first action
         progressGame(previousTurnValid: false)
-        
+		
     }
 	
 	// MARK: Setup
@@ -296,6 +296,8 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		if !acceptInput { return }
 		if event?.subtype == UIEventSubtype.motionShake {
 			print("Device shake")
+			guard let turn = currentTurn else { return }
+			if turn.action.isMotionChallenge { return } // ignore shakes if we are currently on a motion challenge
 			Analytics.logEvent("shake", parameters: nil)
 			progressGame(previousTurnValid: game.take(move: .shake))
 		}
