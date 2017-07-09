@@ -297,7 +297,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		if event?.subtype == UIEventSubtype.motionShake {
 			print("Device shake")
 			guard let turn = currentTurn else { return }
-			if turn.action.isMotionChallenge { return } // ignore shakes if we are currently on a motion challenge
+			if turn.action.isMotionChallenge && turn.action != .shake { return } // ignore shakes if we are currently on a different motion challenge
 			Analytics.logEvent("shake", parameters: nil)
 			progressGame(previousTurnValid: game.take(move: .shake))
 		}
@@ -307,17 +307,17 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		let acceleration = accelerometerData.acceleration
 		switch action {
 		case .faceDown:
-			if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z < 1.2 && acceleration.z > 0.8 {
+			if acceleration.x < 0.25 && acceleration.x > -0.25 && acceleration.y < 0.25 && acceleration.y > -0.25 && acceleration.z < 1.25 && acceleration.z > 0.75 {
 				Analytics.logEvent("face_down", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .faceDown))
 			}
 		case .faceUp:
-			if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z > -1.2 && acceleration.z < -0.8 {
+			if acceleration.x < 0.25 && acceleration.x > -0.25 && acceleration.y < 0.25 && acceleration.y > -0.25 && acceleration.z > -1.25 && acceleration.z < -0.75 {
 				Analytics.logEvent("face_up", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .faceUp))
 			}
 		case .upsideDown:
-			if acceleration.y > 0.8 && acceleration.y < 1.2 {
+			if acceleration.y > 0.75 && acceleration.y < 1.25 {
 				Analytics.logEvent("upside_down", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .upsideDown))
 			}
