@@ -12,7 +12,7 @@ import UIKit
 extension UILabel {
 	
 	/// Updates the text while maintaining the current center position.
-    public func updateTextMaintainCenter(text:String) {
+    public func updateTextMaintainCenter(_ text:String) {
         let previousCenter = self.center
         self.text = text
         self.sizeToFit()

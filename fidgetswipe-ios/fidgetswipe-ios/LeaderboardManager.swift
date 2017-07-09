@@ -64,12 +64,11 @@ public final class LeaderboardManager {
         Analytics.logEvent("show_leaderboard", parameters: nil)
         
         let leaderboardViewController = GKGameCenterViewController()
-        leaderboardViewController.delegate = presentingViewController as? UINavigationControllerDelegate
+        leaderboardViewController.gameCenterDelegate = presentingViewController as? GKGameCenterControllerDelegate
         leaderboardViewController.viewState = .leaderboards
         leaderboardViewController.leaderboardIdentifier = LeaderboardManager.leaderboardID
-        
-        presentingViewController.show(leaderboardViewController, sender: presentingViewController)
-        presentingViewController.navigationController?.pushViewController(leaderboardViewController, animated: true)
+		
+		presentingViewController.present(leaderboardViewController, animated: true, completion: nil)
     }
 	
 	/// Will submit and save score only if it is a highscore

@@ -7,9 +7,9 @@
 //
 
 import UIKit
-import GameKit
 import CoreMotion
 import MediaPlayer
+import GameKit
 import FirebaseAnalytics
 
 public typealias SwipeDirection = UISwipeGestureRecognizerDirection
@@ -49,6 +49,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     private var gameEnded = false
 	
 	// MARK: View
+	
+	private enum Buttons : Int {
+		case leaderboard = 0
+		case share = 1
+	}
+	
     
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
@@ -75,9 +81,9 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         label.textColor = .white
         label.text = ""
         label.sizeToFit()
-        let thirdWidth:CGFloat = self.view.frame.width/3
-        let halfWidth:CGFloat = self.view.frame.width/2
-        label.center = CGPoint(x: halfWidth, y: thirdWidth)
+		let quarterHeight:CGFloat = self.view.frame.height/5
+		let halfWidth:CGFloat = self.view.frame.width/2
+        label.center = CGPoint(x: halfWidth, y: quarterHeight)
         label.textAlignment = .center
         return label
     }()
@@ -88,9 +94,9 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         label.textColor = UIColor(colorLiteralRed: 0.8, green: 0.8, blue: 0.8, alpha: 1)
         label.text = ""
         label.sizeToFit()
-        let thirdWidth:CGFloat = self.view.frame.width/3
+        let quarterHeight:CGFloat = self.view.frame.height/5
         let halfWidth:CGFloat = self.view.frame.width/2
-        label.center = CGPoint(x: halfWidth, y: thirdWidth+55)
+        label.center = CGPoint(x: halfWidth, y: quarterHeight+55)
         label.textAlignment = .center
         return label
     }()
@@ -103,6 +109,30 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         progress.progressTintColor = .white
         return progress
     }()
+	
+	private lazy var leaderboardButton: UIButton = {
+		let button = UIButton(frame: .zero)
+		button.frame.size = CGSize(width: 48, height: 48)
+		button.setImage(UIImage(named: "leader"), for: .normal)
+		let thirdWidth:CGFloat = self.view.frame.width/3
+		let quarterHeight:CGFloat = self.view.frame.height/5
+		button.center = CGPoint(x: thirdWidth, y: 4*quarterHeight)
+		button.tag = Buttons.leaderboard.rawValue
+		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+		return button
+	}()
+	
+	private lazy var shareButton: UIButton = {
+		let button = UIButton(frame: .zero)
+		button.frame.size = CGSize(width: 48, height: 48)
+		button.setImage(UIImage(named: "share"), for: .normal)
+		let thirdWidth:CGFloat = self.view.frame.width/3
+		let quarterHeight:CGFloat = self.view.frame.height/5
+		button.center = CGPoint(x: 2*thirdWidth, y: 4*quarterHeight)
+		button.tag = Buttons.share.rawValue
+		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+		return button
+	}()
 	
 	// MARK: Configuration
 	
@@ -148,6 +178,8 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         self.view.addSubview(promptLabel)
         self.view.addSubview(progressBar)
         self.view.addSubview(highscoreLabel)
+		self.view.addSubview(leaderboardButton)
+		self.view.addSubview(shareButton)
         
         // setup the game's first action
         progressGame(previousTurnValid: false)
@@ -292,6 +324,20 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		}
 	}
 	
+	@objc private func buttonPressed(sender:UIButton) {
+		guard let button = Buttons(rawValue: sender.tag) else { fatalError("invalid button tag!") }
+		switch button {
+		case .leaderboard:
+			LeaderboardManager.shared.showLeaderboard()
+		case .share:
+			let textToShare = "I can't stop fidgeting."
+			let urlToShare = URL(string: "https://itunes.apple.com/app/id769938884")!
+			let activity = UIActivityViewController(activityItems: [textToShare, urlToShare], applicationActivities: nil)
+			activity.excludedActivityTypes = [.print,.postToVimeo]
+			self.present(activity, animated: true, completion: nil)
+		}
+	}
+	
 	// MARK: Game State / Animations
 	
     /// Progress the state of the game to the next turn.
@@ -356,16 +402,18 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             }, completion: nil)
             // show the highscore label
             UIView.transition(with: self.highscoreLabel, duration: 0.25, options: [], animations: {
-                self.highscoreLabel.updateTextMaintainCenter(text: "HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
+                self.highscoreLabel.updateTextMaintainCenter("HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
             }, completion: nil)
         } else {
+			// prevent a brief '0' from glitching
+			self.scoreLabel.updateTextMaintainCenter("1")
             // decrease size of score label
-            UIView.animate(withDuration: 0.2) {
+            UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
                 self.scoreLabel.transform = CGAffineTransform.identity
             }
             // hide the highscore label
-            UIView.transition(with: self.highscoreLabel, duration: 0.2, options: [], animations: {
-                self.highscoreLabel.updateTextMaintainCenter(text: "")
+            UIView.transition(with: self.highscoreLabel, duration: ViewController.nextMoveAnimationTime, options: [], animations: {
+                self.highscoreLabel.updateTextMaintainCenter("")
             }, completion: nil)
         }
     }
@@ -380,7 +428,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
         }) { (_) in
 			// update the score label with the new score
-            self.scoreLabel.updateTextMaintainCenter(text: "\(self.currentTurn.newScore)")
+            self.scoreLabel.updateTextMaintainCenter("\(self.currentTurn.newScore)")
 			// set tint colours back to white
             self.actionImageView.tintColor = .white
             self.progressBar.progressTintColor = .white
@@ -404,7 +452,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		})
 		// show next prompt label, also with a nice animation
 		UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
-			self.promptLabel.updateTextMaintainCenter(text: self.currentTurn.action.description)
+			self.promptLabel.updateTextMaintainCenter(self.currentTurn.action.description)
 		}, completion: nil)
 	}
 	
@@ -413,6 +461,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         // force the progress to be 1 before we start if it is not already at 1
         self.progressBar.progress = 1
         self.progressBar.layoutIfNeeded()
+		// animate the progress bar crawl to 0
         self.progressBar.progress = 0
         UIView.animate(withDuration: currentTurn.timeForMove) {
             self.progressBar.layoutIfNeeded()
