@@ -73,7 +73,7 @@ public final class Game {
     /// - note: `nil` if game is not currently playing.
     private var expectedPlayerMove:Action
     
-    private var motionChallengesEnabled = true
+    public var motionChallengesEnabled = true
     
     /// Keep track of when we have the first turn, because the first one should not be a motion one.
     private var hasHadFirstTurn = false
@@ -138,10 +138,6 @@ public final class Game {
             return true
         }
     }
-    
-    /// Disables motion challenges for the game. They cannot be re-enabled.
-    public func disableMotionChallenges() {
-        motionChallengesEnabled = false
-    }
-    
+
+
 }

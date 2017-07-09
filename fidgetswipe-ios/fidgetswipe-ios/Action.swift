@@ -44,7 +44,7 @@ public enum Action: Int {
         case .shake:
             return "SHAKE"
         case .upsideDown:
-            return "UPSIDE DOWN"
+            return "ROTATE"
         case .volumeUp:
             return "VOLUME UP"
         case .volumeDown:

@@ -18,9 +18,11 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     // MARK: - Static Properties
     
+    // MARK: Colours
     public static let greenColor = UIColor(colorLiteralRed: 0x4c/0xff, green: 0xd9/0xff, blue: 0x64/0xff, alpha: 1)
     public static let redColor = UIColor(colorLiteralRed: 0xff/0xff, green: 0x3b/0xff, blue: 0x30/0xff, alpha: 1)
     
+    // MARK: Animation Times
     public static let greenFlashAnimationTime:TimeInterval = 0.2
     public static let redFlashAnimationTime:TimeInterval = 0.5
     public static let nextMoveAnimationTime:TimeInterval = 0.25
@@ -39,6 +41,9 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     /// The previous level of volume.
     private var previousVolumeLevel:Float = -1
+    
+    /// Whether the game has ended or not
+    private var gameEnded = false
     
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
@@ -68,6 +73,19 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         let thirdWidth:CGFloat = self.view.frame.width/3
         let halfWidth:CGFloat = self.view.frame.width/2
         label.center = CGPoint(x: halfWidth, y: thirdWidth)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var highscoreLabel:UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 15, weight: 1)
+        label.textColor = UIColor(colorLiteralRed: 0.8, green: 0.8, blue: 0.8, alpha: 1)
+        label.text = ""
+        label.sizeToFit()
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        let halfWidth:CGFloat = self.view.frame.width/2
+        label.center = CGPoint(x: halfWidth, y: thirdWidth+55)
         label.textAlignment = .center
         return label
     }()
@@ -109,6 +127,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         self.view.addSubview(scoreLabel)
         self.view.addSubview(promptLabel)
         self.view.addSubview(progressBar)
+        self.view.addSubview(highscoreLabel)
         
         // setup the game
         progressGame(previousTurnValid: false)
@@ -130,6 +149,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         defer { previousVolumeLevel = vol }
         print("volume! \(vol)")
         if !acceptInput { return }
+        // previous volume level is initially -1
         if previousVolumeLevel == -1 {
             if currentTurn.action == .volumeUp {
                 progressGame(previousTurnValid: game.take(move: .volumeUp))
@@ -151,7 +171,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         if !motionManager.isAccelerometerAvailable {
             Analytics.logEvent("accelerometer_not_ava", parameters: nil)
             print("Accelerometer not avaiable, motion challenges are disabled.")
-            game.disableMotionChallenges()
+            game.motionChallengesEnabled = false
             return
         } else {
             Analytics.logEvent("accelerometer_ava", parameters: nil)
@@ -216,8 +236,10 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     }
 
     override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+        if !acceptInput { return }
         if event?.subtype == UIEventSubtype.motionShake {
-            print("shake began")
+            print("Device shake")
+            Analytics.logEvent("shake", parameters: nil)
             progressGame(previousTurnValid: game.take(move: .shake))
         }
     }
@@ -228,9 +250,17 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         // prevent spamming
         acceptInput = false
         
-        // submit score if the game is over
+        // submit score if the game is over and update size of the score label
         if !previousTurnValid && currentTurn != nil {
+            gameEnded = true
+            // submit game center score
             LeaderboardManager.shared.submit(score: currentTurn.newScore)
+            // make the score label extra big and show highscore label
+            updateScoreLabelsForState(gameEnded: true)
+        } else if gameEnded {
+            gameEnded = false
+            // return the label to a normal size and hide highscore label
+            updateScoreLabelsForState(gameEnded: false)
         }
         
         // get the next turn from the game
@@ -244,6 +274,28 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         
     }
     
+    private func updateScoreLabelsForState(gameEnded:Bool) {
+        if gameEnded {
+            // increase size of score label
+            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
+                self.scoreLabel.transform = CGAffineTransform(scaleX: 1.45, y: 1.45)
+            }, completion: nil)
+            // show the highscore label
+            UIView.transition(with: self.highscoreLabel, duration: 0.25, options: [], animations: {
+                self.highscoreLabel.updateTextMaintainCenter(text: "HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
+            }, completion: nil)
+        } else {
+            // decrease size of score label
+            UIView.animate(withDuration: 0.2) {
+                self.scoreLabel.transform = CGAffineTransform.identity
+            }
+            // hide the highscore label
+            UIView.transition(with: self.highscoreLabel, duration: 0.2, options: [], animations: {
+                self.highscoreLabel.updateTextMaintainCenter(text: "")
+            }, completion: nil)
+        }
+    }
+    
     private func startAccelerometerUpdatesIfNeeded(forAction action:Action) {
         
         // stop acceleromter updates if this is not a motion challenege
@@ -252,7 +304,10 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             return
         }
         
+        // START ACCELEROMETER UPDATE
+        // put all the accelerometer data into an operation queue to handle them
         motionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: { (accelerometerData, error) in
+            if !self.acceptInput { return }
             if let err = error {
                 print("Accelerometer update error: \(err.localizedDescription)")
             } else if let accData = accelerometerData {
@@ -268,14 +323,17 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         switch action {
         case .faceDown:
             if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z < 1.2 && acceleration.z > 0.8 {
+                Analytics.logEvent("face_down", parameters: nil)
                 progressGame(previousTurnValid: game.take(move: .faceDown))
             }
         case .faceUp:
             if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z > -1.2 && acceleration.z < -0.8 {
+                Analytics.logEvent("face_up", parameters: nil)
                 progressGame(previousTurnValid: game.take(move: .faceUp))
             }
         case .upsideDown:
             if acceleration.y > 0.8 && acceleration.y < 1.2 {
+                Analytics.logEvent("upside_down", parameters: nil)
                 progressGame(previousTurnValid: game.take(move: .upsideDown))
             }
         default:
@@ -308,19 +366,13 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
                 }
             })
             UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
-                let prevCenterPrompt = self.promptLabel.center
-                self.promptLabel.text = self.currentTurn.action.description
-                self.promptLabel.sizeToFit()
-                self.promptLabel.center = prevCenterPrompt
+                self.promptLabel.updateTextMaintainCenter(text: self.currentTurn.action.description)
             }, completion: nil)
         }
     }
     
     private func updateScoreLabel() {
-        self.scoreLabel.text = "\(self.currentTurn.newScore)"
-        let prevCenterScore = self.scoreLabel.center
-        self.scoreLabel.sizeToFit()
-        self.scoreLabel.center = prevCenterScore
+        self.scoreLabel.updateTextMaintainCenter(text: "\(self.currentTurn.newScore)")
     }
     
     private func startProgressBarAnimating() {
