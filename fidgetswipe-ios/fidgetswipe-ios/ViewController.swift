@@ -14,7 +14,7 @@ import FirebaseAnalytics
 
 public typealias SwipeDirection = UISwipeGestureRecognizerDirection
 
-final class ViewController: UIViewController, GKGameCenterControllerDelegate {
+public final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     // MARK: - Static Properties
     
@@ -107,12 +107,12 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
 	// MARK: Configuration
 	
 	// Become the first responder for shake events.
-	override var canBecomeFirstResponder: Bool {
+	override public var canBecomeFirstResponder: Bool {
 		return true
 	}
 	
 	// Prefer the status bar hidden.
-	override var prefersStatusBarHidden: Bool {
+	override public var prefersStatusBarHidden: Bool {
 		return true
 	}
 	
@@ -120,7 +120,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
 	
 	// MARK: Lifecycle
 	
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         
         // hide volume indicator
@@ -260,7 +260,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
 		}
 	}
 	
-	override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+	override public func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
 		if !acceptInput { return }
 		if event?.subtype == UIEventSubtype.motionShake {
 			print("Device shake")
@@ -314,7 +314,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         }
         
         // get the next turn from the game
-        currentTurn = game.getNextMove()
+        currentTurn = game.nextMove()
         
         // start listening for accelerometer updates if needed
         startAccelerometerUpdates(ifNeededforAction: currentTurn.action)
@@ -421,7 +421,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
 	
 	// MARK: - Game Center
 	
-	func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
+	public func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
 		gameCenterViewController.dismiss(animated: true, completion: nil)
 	}
 	

@@ -72,7 +72,8 @@ public final class Game {
     /// The expected next move of the player.
     /// - note: `nil` if game is not currently playing.
     private var expectedPlayerMove:Action
-    
+	
+	/// Whether or not motion challenges should be selected.
     public var motionChallengesEnabled = true
     
     /// Keep track of when we have the first turn, because the first one should not be a motion one.
@@ -85,7 +86,7 @@ public final class Game {
     }
     
     /// Calling this tells the game it should progress to a new move.
-    public func getNextMove() -> TurnData {
+    public func nextMove() -> TurnData {
         expectedPlayerMove = Action.random()
         // if motion challenges are not enabled, do not choose motion challenges (also do not perform a motion challenge for the first turn AND we cannot have 2 motion challenges in a row).
         // make sure not to repeat the same action 2 times in a row

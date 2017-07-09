@@ -9,7 +9,7 @@
 import Foundation
 
 /// A simple enum to represent the type of actions that the game accepts.
-public enum Action: Int {
+public enum Action: Int, CustomStringConvertible {
     
     case tap        = 0
     case swipeUp    = 1
@@ -31,7 +31,7 @@ public enum Action: Int {
         if let action = Action(rawValue: Int(randomNumber)) {
             return action
         } else {
-            fatalError("This rawValue (\(randomNumber)) does not equate to a vaild 'Action'.")
+            fatalError("rawValue (\(randomNumber)) does not equate to a vaild 'Action'.")
         }
     }
     

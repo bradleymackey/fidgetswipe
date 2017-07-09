@@ -53,7 +53,8 @@ public struct TurnData {
         case .faceUp:
             return TurnData.image(forName: "face_up")
         case .faceDown:
-            return TurnData.image(forName: "face_down")
+            let upImage = TurnData.image(forName: "face_up")
+			return UIImage(cgImage: upImage.cgImage!, scale: 1, orientation: .downMirrored)
         }
     }
 }
