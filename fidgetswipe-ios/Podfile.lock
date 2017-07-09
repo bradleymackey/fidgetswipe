@@ -7,9 +7,6 @@ PODS:
   - Firebase/Performance (4.0.3):
     - Firebase/Core
     - FirebasePerformance (= 1.0.3)
-  - Firebase/RemoteConfig (4.0.3):
-    - Firebase/Core
-    - FirebaseRemoteConfig (= 2.0.1)
   - FirebaseAnalytics (4.0.2):
     - FirebaseCore (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
@@ -25,11 +22,6 @@ PODS:
     - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - GTMSessionFetcher/Core (~> 1.1)
     - Protobuf (~> 3.1)
-  - FirebaseRemoteConfig (2.0.1):
-    - FirebaseAnalytics (~> 4.0)
-    - FirebaseInstanceID (~> 2.0)
-    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
-    - Protobuf (~> 3.1)
   - GoogleToolboxForMac/Defines (2.1.1)
   - GoogleToolboxForMac/Logger (2.1.1):
     - GoogleToolboxForMac/Defines (= 2.1.1)
@@ -41,7 +33,6 @@ PODS:
 DEPENDENCIES:
   - Firebase
   - Firebase/Performance
-  - Firebase/RemoteConfig
 
 SPEC CHECKSUMS:
   Firebase: 9e33fdfbca37cab635c693883caa90a4475b842b
@@ -49,11 +40,10 @@ SPEC CHECKSUMS:
   FirebaseCore: c709067051de07bdaffdc4e735cd7299a23c463a
   FirebaseInstanceID: 9fbf536668f4d3f0880e7438456dabd1376e294b
   FirebasePerformance: 36bdb0500213b459ae991766801d5dc5399ff231
-  FirebaseRemoteConfig: 328244399f64226cfdfa32efee596bb010ef5665
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
   GTMSessionFetcher: 30d874b96d0d76028f61fbd122801e3f030d47db
   Protobuf: d582fecf68201eac3d79ed61369ef45734394b9c
 
-PODFILE CHECKSUM: 937c30196a9b47de83c963baf2a8423a11bcbec1
+PODFILE CHECKSUM: b9c7cc6d0e324e41a61224dc0288e16e07025761
 
 COCOAPODS: 1.2.1

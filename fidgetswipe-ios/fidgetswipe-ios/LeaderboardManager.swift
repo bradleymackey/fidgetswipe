@@ -73,6 +73,7 @@ public final class LeaderboardManager {
     }
     
     public func submit(score scoreVal:UInt) {
+        deviceHighscore = scoreVal
         let score = GKScore(leaderboardIdentifier: LeaderboardManager.leaderboardID)
         score.value = Int64(scoreVal)
         GKScore.report([score]) { [scoreVal] (error) in
@@ -85,5 +86,26 @@ public final class LeaderboardManager {
         }
     }
     
+    public var deviceHighscore:UInt {
+        get {
+            let defaults = UserDefaults.standard
+            let scoreToCheck = defaults.integer(forKey: "hs")
+            let scoreAsString = "\(scoreToCheck)h3A!g2J$W*1VNPIRzFqB*DhJ4#M&N7BWciSDAofEcj$wL9UVa"
+            guard let scorePreviousHash = defaults.string(forKey: "hsh") else {
+                return 0
+            }
+            if scoreAsString.MD5 == scorePreviousHash {
+                return UInt(scoreToCheck)
+            } else {
+                return 0
+            }
+        }
+        set {
+            let defaults = UserDefaults.standard
+            defaults.set(newValue, forKey: "hs")
+            let toHash = "\(newValue)h3A!g2J$W*1VNPIRzFqB*DhJ4#M&N7BWciSDAofEcj$wL9UVa"
+            defaults.set(toHash.MD5, forKey: "hsh")
+        }
+    }
     
 }

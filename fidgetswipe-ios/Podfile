@@ -8,7 +8,6 @@ target 'fidgetswipe-ios' do
   # Pods for fidgetswipe-ios
   
   pod 'Firebase'
-  pod 'Firebase/RemoteConfig'
   pod 'Firebase/Performance'
 
   target 'fidgetswipe-iosTests' do

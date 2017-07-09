@@ -8,53 +8,196 @@
 
 import UIKit
 import GameKit
+import CoreMotion
+import MediaPlayer
+import FirebaseAnalytics
+
+public typealias SwipeDirection = UISwipeGestureRecognizerDirection
 
 final class ViewController: UIViewController, GKGameCenterControllerDelegate {
+    
+    // MARK: - Static Properties
+    
+    // MARK: Colours
+    public static let greenColor = UIColor(colorLiteralRed: 0x4c/0xff, green: 0xd9/0xff, blue: 0x64/0xff, alpha: 1)
+    public static let redColor = UIColor(colorLiteralRed: 0xff/0xff, green: 0x3b/0xff, blue: 0x30/0xff, alpha: 1)
+    
+    // MARK: Animation Times
+    public static let greenFlashAnimationTime:TimeInterval = 0.2
+    public static let redFlashAnimationTime:TimeInterval = 0.5
+    public static let nextMoveAnimationTime:TimeInterval = 0.25
+    public static let restoreProgressBarAnimationTime:TimeInterval = 0.1
     
     
     /// Manages the whole game.
     private var game = Game()
+    private var currentTurn:TurnData!
+    
+    /// Variable so we know when we should accept user input (spam prevention)
+    private var acceptInput = false
+    
+    /// Motion manager to read accelerometer events.
+    private var motionManager:CMMotionManager!
+    
+    /// The previous level of volume.
+    private var previousVolumeLevel:Float = -1
+    
+    /// Whether the game has ended or not
+    private var gameEnded = false
+    
+    private lazy var actionImageView:UIImageView = {
+        let imageView = UIImageView(frame: .zero)
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        imageView.frame.size = CGSize(width: thirdWidth, height: thirdWidth)
+        imageView.center = self.view.center
+        imageView.contentMode = .scaleAspectFill
+        imageView.tintColor = .white
+        return imageView
+    }()
+    
+    private lazy var promptLabel:UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: 1)
+        label.textColor = .lightGray
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        label.center = CGPoint(x: self.view.center.x, y: self.view.center.y+(thirdWidth/1.8)+20)
+        return label
+    }()
+    
+    private lazy var scoreLabel:UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 53, weight: 0.8)
+        label.textColor = .white
+        label.text = ""
+        label.sizeToFit()
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        let halfWidth:CGFloat = self.view.frame.width/2
+        label.center = CGPoint(x: halfWidth, y: thirdWidth)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var highscoreLabel:UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 15, weight: 1)
+        label.textColor = UIColor(colorLiteralRed: 0.8, green: 0.8, blue: 0.8, alpha: 1)
+        label.text = ""
+        label.sizeToFit()
+        let thirdWidth:CGFloat = self.view.frame.width/3
+        let halfWidth:CGFloat = self.view.frame.width/2
+        label.center = CGPoint(x: halfWidth, y: thirdWidth+55)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var progressBar:UIProgressView = {
+        let progress = UIProgressView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 0)) // height is auto-set
+        progress.progressViewStyle = .bar
+        progress.setProgress(1, animated:false)
+        progress.trackTintColor = .clear
+        progress.progressTintColor = .white
+        return progress
+    }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // hide volume indicator
+        hideVolumeIndicator()
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.volumeChanged(notification:)), name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
+        
+        // Become the first responder
+        self.becomeFirstResponder()
+        
+        // Set the background colour
+        self.view.backgroundColor = .black
+        
+        // setup gestures
+        setupGestureRecognisers()
        
         // Setup the Game Center ready for posting leaderboard scores.
         LeaderboardManager.shared.set(presentingViewController: self)
         
+        // Setup the motion manager
+        setupMotionManager()
         
-        /* Game class reference example */
+        // Add the views for the game
+        self.view.addSubview(actionImageView)
+        self.view.addSubview(scoreLabel)
+        self.view.addSubview(promptLabel)
+        self.view.addSubview(progressBar)
+        self.view.addSubview(highscoreLabel)
         
-        // Get the first turn
-        let first = game.nextMove()
-        let firstAction = first.action
-        let timeAllowedForFirstAction = first.timeAllowed
-        let updatedScore = first.newScore
-        
-        // Take a turn
-        let successful = game.take(move: .swipeDown)
-        if successful {
-            // get the second turn
-            let secondTurn = game.nextMove()
-        } else {
-            // WRONG! the game has ended (you should also report game center score at this point)
-            let setupReadyForNextGame = game.nextMove()
-        }
-        
-        // NB: the flow is THE SAME no matter is the go is wrong or right
-        // this is because we don't have a 'Play Again' screen, they just start swiping again to keep playing
+        // setup the game
+        progressGame(previousTurnValid: false)
         
     }
     
+    private func hideVolumeIndicator() {
+        let volumeView = MPVolumeView(frame: .zero)
+        volumeView.center = CGPoint(x: -100, y: -100)
+        volumeView.showsRouteButton = false
+        volumeView.showsVolumeSlider = true
+        volumeView.isHidden = false
+        self.view.addSubview(volumeView)
+    }
+
+
+    @objc private func volumeChanged(notification:Notification) {
+        let vol = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as! Float
+        defer { previousVolumeLevel = vol }
+        print("volume! \(vol)")
+        if !acceptInput { return }
+        // previous volume level is initially -1
+        if previousVolumeLevel == -1 {
+            if currentTurn.action == .volumeUp {
+                progressGame(previousTurnValid: game.take(move: .volumeUp))
+            } else {
+                progressGame(previousTurnValid: game.take(move: .volumeDown))
+            }
+        } else {
+            if vol == 0 || vol < previousVolumeLevel {
+                progressGame(previousTurnValid: game.take(move: .volumeDown))
+            } else {
+                progressGame(previousTurnValid: game.take(move: .volumeUp))
+            }
+        }
+     }
+    
+    private func setupMotionManager() {
+        motionManager = CMMotionManager()
+        if !motionManager.isAccelerometerAvailable {
+            Analytics.logEvent("accelerometer_not_ava", parameters: nil)
+            print("Accelerometer not avaiable, motion challenges are disabled.")
+            game.motionChallengesEnabled = false
+            return
+        } else {
+            Analytics.logEvent("accelerometer_ava", parameters: nil)
+        }
+    }
     
     private func setupGestureRecognisers() {
-        // setup the tap recogniser
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.gestureTapped(tapGestureRecogniser:)))
         tap.numberOfTapsRequired = 1
         self.view.addGestureRecognizer(tap)
-        // setup the swipe recogniser
-        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
-        self.view.addGestureRecognizer(swipe)
+        
+        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+        swipeUp.direction = .up
+        self.view.addGestureRecognizer(swipeUp)
+        
+        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+        swipeDown.direction = .down
+        self.view.addGestureRecognizer(swipeDown)
+        
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+        swipeLeft.direction = .left
+        self.view.addGestureRecognizer(swipeLeft)
+        
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+        swipeRight.direction = .right
+        self.view.addGestureRecognizer(swipeRight)
     }
     
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
@@ -63,20 +206,190 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     @objc
     func gestureTapped(tapGestureRecogniser: UITapGestureRecognizer) {
-        
+        if !acceptInput { return }
+        Analytics.logEvent("tap", parameters: nil)
+        progressGame(previousTurnValid: game.take(move: .tap))
     }
+
     
     @objc
     func gestureSwiped(swipeGestureRecognser: UISwipeGestureRecognizer) {
-        typealias D = UISwipeGestureRecognizerDirection
+        if !acceptInput { return }
         switch swipeGestureRecognser.direction {
-        case D.right: break
-        case D.left: break
-        case D.up: break
-        case D.down: break
+        case SwipeDirection.right:
+            Analytics.logEvent("swipe_right", parameters: nil)
+            progressGame(previousTurnValid: game.take(move: .swipeRight))
+        case SwipeDirection.left:
+            Analytics.logEvent("swipe_left", parameters: nil)
+            progressGame(previousTurnValid: game.take(move: .swipeLeft))
+        case SwipeDirection.up:
+            Analytics.logEvent("swipe_up", parameters: nil)
+            progressGame(previousTurnValid: game.take(move: .swipeUp))
+        case SwipeDirection.down:
+            Analytics.logEvent("swipe_down", parameters: nil)
+            progressGame(previousTurnValid: game.take(move: .swipeDown))
         default:
             fatalError("Invalid swipe direction")
         }
+    }
+
+    override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+        if !acceptInput { return }
+        if event?.subtype == UIEventSubtype.motionShake {
+            print("Device shake")
+            Analytics.logEvent("shake", parameters: nil)
+            progressGame(previousTurnValid: game.take(move: .shake))
+        }
+    }
+    
+    /// Progress the state of the game to the next turn.
+    private func progressGame(previousTurnValid: Bool) {
+        
+        // prevent spamming
+        acceptInput = false
+        
+        // submit score if the game is over and update size of the score label
+        if !previousTurnValid && currentTurn != nil {
+            gameEnded = true
+            // submit game center score
+            LeaderboardManager.shared.submit(score: currentTurn.newScore)
+            // make the score label extra big and show highscore label
+            updateScoreLabelsForState(gameEnded: true)
+        } else if gameEnded {
+            gameEnded = false
+            // return the label to a normal size and hide highscore label
+            updateScoreLabelsForState(gameEnded: false)
+        }
+        
+        // get the next turn from the game
+        currentTurn = game.getNextMove()
+        
+        // start listening for accelerometer updates if needed
+        startAccelerometerUpdatesIfNeeded(forAction: currentTurn.action)
+
+        // animate to the next turn
+        animateNextTurn(forPreviousTurnValid: previousTurnValid)
+        
+    }
+    
+    private func updateScoreLabelsForState(gameEnded:Bool) {
+        if gameEnded {
+            // increase size of score label
+            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
+                self.scoreLabel.transform = CGAffineTransform(scaleX: 1.45, y: 1.45)
+            }, completion: nil)
+            // show the highscore label
+            UIView.transition(with: self.highscoreLabel, duration: 0.25, options: [], animations: {
+                self.highscoreLabel.updateTextMaintainCenter(text: "HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
+            }, completion: nil)
+        } else {
+            // decrease size of score label
+            UIView.animate(withDuration: 0.2) {
+                self.scoreLabel.transform = CGAffineTransform.identity
+            }
+            // hide the highscore label
+            UIView.transition(with: self.highscoreLabel, duration: 0.2, options: [], animations: {
+                self.highscoreLabel.updateTextMaintainCenter(text: "")
+            }, completion: nil)
+        }
+    }
+    
+    private func startAccelerometerUpdatesIfNeeded(forAction action:Action) {
+        
+        // stop acceleromter updates if this is not a motion challenege
+        if (!action.isMotionChallenge && motionManager.isAccelerometerAvailable) || action == .shake {
+            motionManager.stopAccelerometerUpdates()
+            return
+        }
+        
+        // *** START ACCELEROMETER UPDATES ***
+        // put all the accelerometer data into an operation queue to handle them
+        motionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: { (accelerometerData, error) in
+            if !self.acceptInput { return }
+            if let err = error {
+                print("Accelerometer update error: \(err.localizedDescription)")
+            } else if let accData = accelerometerData {
+                print("accel: x:\(accData.acceleration.x) y:\(accData.acceleration.y) z:\(accData.acceleration.z)")
+                self.handleMotionActionVerification(accelerometerData: accData, action: action)
+            }
+        })
+        
+    }
+    
+    private func handleMotionActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
+        let acceleration = accelerometerData.acceleration
+        switch action {
+        case .faceDown:
+            if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z < 1.2 && acceleration.z > 0.8 {
+                Analytics.logEvent("face_down", parameters: nil)
+                progressGame(previousTurnValid: game.take(move: .faceDown))
+            }
+        case .faceUp:
+            if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z > -1.2 && acceleration.z < -0.8 {
+                Analytics.logEvent("face_up", parameters: nil)
+                progressGame(previousTurnValid: game.take(move: .faceUp))
+            }
+        case .upsideDown:
+            if acceleration.y > 0.8 && acceleration.y < 1.2 {
+                Analytics.logEvent("upside_down", parameters: nil)
+                progressGame(previousTurnValid: game.take(move: .upsideDown))
+            }
+        default:
+            print("[WARN] Attemping to verify device position even though this is not a motion challenge!")
+        }
+    }
+    
+    
+    private func animateNextTurn(forPreviousTurnValid previousTurnValid:Bool) {
+        let animationDuration:TimeInterval = previousTurnValid ? ViewController.greenFlashAnimationTime : ViewController.redFlashAnimationTime
+        self.progressBar.layer.removeAllAnimations()
+        self.progressBar.progress = 1
+        UIView.animate(withDuration: animationDuration, animations: {
+            self.actionImageView.tintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
+            self.progressBar.layoutIfNeeded()
+            self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
+        }) { (_) in
+            self.updateScoreLabel()
+            self.actionImageView.tintColor = .white
+            self.progressBar.progressTintColor = .white
+            UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
+                self.actionImageView.image = self.currentTurn.image
+            }, completion: { _ in
+                // on the image changing...
+                // accept input again
+                self.acceptInput = true
+                // restart the progress bar animation if turn was success
+                if previousTurnValid {
+                    self.startProgressBarAnimating()
+                }
+            })
+            UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
+                self.promptLabel.updateTextMaintainCenter(text: self.currentTurn.action.description)
+            }, completion: nil)
+        }
+    }
+    
+    private func updateScoreLabel() {
+        self.scoreLabel.updateTextMaintainCenter(text: "\(self.currentTurn.newScore)")
+    }
+    
+    private func startProgressBarAnimating() {
+        self.progressBar.layer.removeAllAnimations()
+        // force the progress to be 1 before we start if it is not already at 1
+        self.progressBar.progress = 1
+        self.progressBar.layoutIfNeeded()
+        self.progressBar.progress = 0
+        UIView.animate(withDuration: currentTurn.timeForMove) {
+            self.progressBar.layoutIfNeeded()
+        }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
 }
 
