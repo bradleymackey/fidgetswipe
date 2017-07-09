@@ -27,7 +27,10 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     public static let redFlashAnimationTime:TimeInterval = 0.5
     public static let nextMoveAnimationTime:TimeInterval = 0.25
     public static let restoreProgressBarAnimationTime:TimeInterval = 0.1
-    
+	
+	// MARK: - Instance Properties
+	
+	// MARK: Game Management
     
     /// Manages the whole game.
     private var game = Game()
@@ -44,6 +47,8 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
     
     /// Whether the game has ended or not
     private var gameEnded = false
+	
+	// MARK: View
     
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
@@ -98,8 +103,23 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         progress.progressTintColor = .white
         return progress
     }()
-    
-    
+	
+	// MARK: Configuration
+	
+	// Become the first responder for shake events.
+	override var canBecomeFirstResponder: Bool {
+		return true
+	}
+	
+	// Prefer the status bar hidden.
+	override var prefersStatusBarHidden: Bool {
+		return true
+	}
+	
+	// MARK: - Methods
+	
+	// MARK: Lifecycle
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -107,7 +127,7 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         hideVolumeIndicator()
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.volumeChanged(notification:)), name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
         
-        // Become the first responder
+        // Become the first responder (for shake events).
         self.becomeFirstResponder()
         
         // Set the background colour
@@ -129,21 +149,68 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         self.view.addSubview(progressBar)
         self.view.addSubview(highscoreLabel)
         
-        // setup the game
+        // setup the game's first action
         progressGame(previousTurnValid: false)
         
     }
-    
+	
+	// MARK: Setup
+	
+	/// When called, the system volume indicator will no longer be displayed (given that we have the right AVAudioSessionCategory set).
     private func hideVolumeIndicator() {
         let volumeView = MPVolumeView(frame: .zero)
-        volumeView.center = CGPoint(x: -100, y: -100)
+        volumeView.center = CGPoint(x: -150, y: -150) // place it at a point where it will not be visible.
         volumeView.showsRouteButton = false
-        volumeView.showsVolumeSlider = true
+        volumeView.showsVolumeSlider = true // ensure we take over volume control
         volumeView.isHidden = false
         self.view.addSubview(volumeView)
     }
+	
+	private func setupGestureRecognisers() {
+		
+		// TAP
+		
+		let tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.gestureTapped(tapGestureRecogniser:)))
+		tap.numberOfTapsRequired = 1
+		self.view.addGestureRecognizer(tap)
+	
+		// SWIPE
+		
+		let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+		swipeUp.direction = .up
+		self.view.addGestureRecognizer(swipeUp)
+		
+		let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+		swipeDown.direction = .down
+		self.view.addGestureRecognizer(swipeDown)
+		
+		let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+		swipeLeft.direction = .left
+		self.view.addGestureRecognizer(swipeLeft)
+		
+		let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
+		swipeRight.direction = .right
+		self.view.addGestureRecognizer(swipeRight)
+	}
+	
+	/// Creates a motion manager and deactivates accelerometer challenges if we have no accelerometer avaliable.
+	private func setupMotionManager() {
+		motionManager = CMMotionManager()
+		// only enable motion challenges if we have an accelerometer accessable.
+		if !motionManager.isAccelerometerAvailable {
+			Analytics.logEvent("accelerometer_not_ava", parameters: nil)
+			print("Accelerometer not avaiable, motion challenges are disabled.")
+			game.motionChallengesEnabled = false
+			return
+		} else {
+			Analytics.logEvent("accelerometer_ava", parameters: nil)
+		}
+	}
+	
+	// MARK: Interaction Handling
 
 
+	/// Called when the system volume level has changed.
     @objc private func volumeChanged(notification:Notification) {
         let vol = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as! Float
         defer { previousVolumeLevel = vol }
@@ -156,7 +223,9 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             } else {
                 progressGame(previousTurnValid: game.take(move: .volumeDown))
             }
-        } else {
+        }
+		// this block called when we know the previous volume level
+		else {
             if vol == 0 || vol < previousVolumeLevel {
                 progressGame(previousTurnValid: game.take(move: .volumeDown))
             } else {
@@ -164,87 +233,70 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             }
         }
      }
-    
-    private func setupMotionManager() {
-        motionManager = CMMotionManager()
-        if !motionManager.isAccelerometerAvailable {
-            Analytics.logEvent("accelerometer_not_ava", parameters: nil)
-            print("Accelerometer not avaiable, motion challenges are disabled.")
-            game.motionChallengesEnabled = false
-            return
-        } else {
-            Analytics.logEvent("accelerometer_ava", parameters: nil)
-        }
-    }
-    
-    private func setupGestureRecognisers() {
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.gestureTapped(tapGestureRecogniser:)))
-        tap.numberOfTapsRequired = 1
-        self.view.addGestureRecognizer(tap)
-        
-        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
-        swipeUp.direction = .up
-        self.view.addGestureRecognizer(swipeUp)
-        
-        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
-        swipeDown.direction = .down
-        self.view.addGestureRecognizer(swipeDown)
-        
-        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
-        swipeLeft.direction = .left
-        self.view.addGestureRecognizer(swipeLeft)
-        
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.gestureSwiped(swipeGestureRecognser:)))
-        swipeRight.direction = .right
-        self.view.addGestureRecognizer(swipeRight)
-    }
-    
-    func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
-        gameCenterViewController.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc
-    func gestureTapped(tapGestureRecogniser: UITapGestureRecognizer) {
-        if !acceptInput { return }
-        Analytics.logEvent("tap", parameters: nil)
-        progressGame(previousTurnValid: game.take(move: .tap))
-    }
-
-    
-    @objc
-    func gestureSwiped(swipeGestureRecognser: UISwipeGestureRecognizer) {
-        if !acceptInput { return }
-        switch swipeGestureRecognser.direction {
-        case SwipeDirection.right:
-            Analytics.logEvent("swipe_right", parameters: nil)
-            progressGame(previousTurnValid: game.take(move: .swipeRight))
-        case SwipeDirection.left:
-            Analytics.logEvent("swipe_left", parameters: nil)
-            progressGame(previousTurnValid: game.take(move: .swipeLeft))
-        case SwipeDirection.up:
-            Analytics.logEvent("swipe_up", parameters: nil)
-            progressGame(previousTurnValid: game.take(move: .swipeUp))
-        case SwipeDirection.down:
-            Analytics.logEvent("swipe_down", parameters: nil)
-            progressGame(previousTurnValid: game.take(move: .swipeDown))
-        default:
-            fatalError("Invalid swipe direction")
-        }
-    }
-
-    override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
-        if !acceptInput { return }
-        if event?.subtype == UIEventSubtype.motionShake {
-            print("Device shake")
-            Analytics.logEvent("shake", parameters: nil)
-            progressGame(previousTurnValid: game.take(move: .shake))
-        }
-    }
-    
+	
+	@objc func gestureTapped(tapGestureRecogniser: UITapGestureRecognizer) {
+		if !acceptInput { return }
+		Analytics.logEvent("tap", parameters: nil)
+		progressGame(previousTurnValid: game.take(move: .tap))
+	}
+	
+	@objc func gestureSwiped(swipeGestureRecognser: UISwipeGestureRecognizer) {
+		if !acceptInput { return }
+		switch swipeGestureRecognser.direction {
+		case SwipeDirection.right:
+			Analytics.logEvent("swipe_right", parameters: nil)
+			progressGame(previousTurnValid: game.take(move: .swipeRight))
+		case SwipeDirection.left:
+			Analytics.logEvent("swipe_left", parameters: nil)
+			progressGame(previousTurnValid: game.take(move: .swipeLeft))
+		case SwipeDirection.up:
+			Analytics.logEvent("swipe_up", parameters: nil)
+			progressGame(previousTurnValid: game.take(move: .swipeUp))
+		case SwipeDirection.down:
+			Analytics.logEvent("swipe_down", parameters: nil)
+			progressGame(previousTurnValid: game.take(move: .swipeDown))
+		default:
+			fatalError("Invalid swipe direction")
+		}
+	}
+	
+	override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+		if !acceptInput { return }
+		if event?.subtype == UIEventSubtype.motionShake {
+			print("Device shake")
+			Analytics.logEvent("shake", parameters: nil)
+			progressGame(previousTurnValid: game.take(move: .shake))
+		}
+	}
+	
+	private func handleMotionActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
+		let acceleration = accelerometerData.acceleration
+		switch action {
+		case .faceDown:
+			if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z < 1.2 && acceleration.z > 0.8 {
+				Analytics.logEvent("face_down", parameters: nil)
+				progressGame(previousTurnValid: game.take(move: .faceDown))
+			}
+		case .faceUp:
+			if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z > -1.2 && acceleration.z < -0.8 {
+				Analytics.logEvent("face_up", parameters: nil)
+				progressGame(previousTurnValid: game.take(move: .faceUp))
+			}
+		case .upsideDown:
+			if acceleration.y > 0.8 && acceleration.y < 1.2 {
+				Analytics.logEvent("upside_down", parameters: nil)
+				progressGame(previousTurnValid: game.take(move: .upsideDown))
+			}
+		default:
+			print("[WARN] Attemping to verify device position even though this is not a motion challenge!")
+		}
+	}
+	
+	// MARK: Game State / Animations
+	
     /// Progress the state of the game to the next turn.
     private func progressGame(previousTurnValid: Bool) {
-        
+		
         // prevent spamming
         acceptInput = false
         
@@ -265,13 +317,37 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
         currentTurn = game.getNextMove()
         
         // start listening for accelerometer updates if needed
-        startAccelerometerUpdatesIfNeeded(forAction: currentTurn.action)
+        startAccelerometerUpdates(ifNeededforAction: currentTurn.action)
 
         // animate to the next turn
-        animateNextTurn(forPreviousTurnValid: previousTurnValid)
+        animateActionRecieved(forPreviousTurnValid: previousTurnValid)
         
     }
-    
+	
+	private func startAccelerometerUpdates(ifNeededforAction action:Action) {
+		
+		// stop acceleromter updates if this is not a motion challenege
+		if (!action.isMotionChallenge && motionManager.isAccelerometerAvailable) || action == .shake {
+			motionManager.stopAccelerometerUpdates()
+			return
+		}
+		
+		// *** START ACCELEROMETER UPDATES ***
+		// put all the accelerometer data into an operation queue to handle them
+		motionManager.startAccelerometerUpdates(to: OperationQueue.main) { (accelerometerData, error) in
+			if !self.acceptInput { return }
+			if let err = error {
+				print("Accelerometer update error: \(err.localizedDescription)")
+			} else if let accData = accelerometerData {
+				print("accel: x:\(accData.acceleration.x) y:\(accData.acceleration.y) z:\(accData.acceleration.z)")
+				self.handleMotionActionVerification(accelerometerData: accData, action: action)
+			}
+		}
+		
+	}
+	
+	/// Animate a change in the appearance of the score labels (if a game has just began or ended)
+	/// - parameter gameEnded: whether the game has just began (false) or just ended (true)
     private func updateScoreLabelsForState(gameEnded:Bool) {
         if gameEnded {
             // increase size of score label
@@ -293,54 +369,8 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             }, completion: nil)
         }
     }
-    
-    private func startAccelerometerUpdatesIfNeeded(forAction action:Action) {
-        
-        // stop acceleromter updates if this is not a motion challenege
-        if (!action.isMotionChallenge && motionManager.isAccelerometerAvailable) || action == .shake {
-            motionManager.stopAccelerometerUpdates()
-            return
-        }
-        
-        // *** START ACCELEROMETER UPDATES ***
-        // put all the accelerometer data into an operation queue to handle them
-        motionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: { (accelerometerData, error) in
-            if !self.acceptInput { return }
-            if let err = error {
-                print("Accelerometer update error: \(err.localizedDescription)")
-            } else if let accData = accelerometerData {
-                print("accel: x:\(accData.acceleration.x) y:\(accData.acceleration.y) z:\(accData.acceleration.z)")
-                self.handleMotionActionVerification(accelerometerData: accData, action: action)
-            }
-        })
-        
-    }
-    
-    private func handleMotionActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
-        let acceleration = accelerometerData.acceleration
-        switch action {
-        case .faceDown:
-            if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z < 1.2 && acceleration.z > 0.8 {
-                Analytics.logEvent("face_down", parameters: nil)
-                progressGame(previousTurnValid: game.take(move: .faceDown))
-            }
-        case .faceUp:
-            if acceleration.x < 0.2 && acceleration.x > -0.2 && acceleration.y < 0.2 && acceleration.y > -0.2 && acceleration.z > -1.2 && acceleration.z < -0.8 {
-                Analytics.logEvent("face_up", parameters: nil)
-                progressGame(previousTurnValid: game.take(move: .faceUp))
-            }
-        case .upsideDown:
-            if acceleration.y > 0.8 && acceleration.y < 1.2 {
-                Analytics.logEvent("upside_down", parameters: nil)
-                progressGame(previousTurnValid: game.take(move: .upsideDown))
-            }
-        default:
-            print("[WARN] Attemping to verify device position even though this is not a motion challenge!")
-        }
-    }
-    
-    
-    private func animateNextTurn(forPreviousTurnValid previousTurnValid:Bool) {
+	
+    private func animateActionRecieved(forPreviousTurnValid previousTurnValid:Bool) {
         let animationDuration:TimeInterval = previousTurnValid ? ViewController.greenFlashAnimationTime : ViewController.redFlashAnimationTime
         self.progressBar.layer.removeAllAnimations()
         self.progressBar.progress = 1
@@ -349,30 +379,35 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             self.progressBar.layoutIfNeeded()
             self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
         }) { (_) in
-            self.updateScoreLabel()
+			// update the score label with the new score
+            self.scoreLabel.updateTextMaintainCenter(text: "\(self.currentTurn.newScore)")
+			// set tint colours back to white
             self.actionImageView.tintColor = .white
             self.progressBar.progressTintColor = .white
-            UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
-                self.actionImageView.image = self.currentTurn.image
-            }, completion: { _ in
-                // on the image changing...
-                // accept input again
-                self.acceptInput = true
-                // restart the progress bar animation if turn was success
-                if previousTurnValid {
-                    self.startProgressBarAnimating()
-                }
-            })
-            UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
-                self.promptLabel.updateTextMaintainCenter(text: self.currentTurn.action.description)
-            }, completion: nil)
+			// animate to the next activity image with a nice animation
+			self.displayNextActivity(previousTurnValid: previousTurnValid)
         }
     }
-    
-    private func updateScoreLabel() {
-        self.scoreLabel.updateTextMaintainCenter(text: "\(self.currentTurn.newScore)")
-    }
-    
+	
+	private func displayNextActivity(previousTurnValid:Bool) {
+		// show next activity image with a nice animation
+		UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
+			self.actionImageView.image = self.currentTurn.image
+		}, completion: { _ in
+			// on the image changing...
+			// accept input again
+			self.acceptInput = true
+			// restart the progress bar animation if turn was success
+			if previousTurnValid {
+				self.startProgressBarAnimating()
+			}
+		})
+		// show next prompt label, also with a nice animation
+		UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
+			self.promptLabel.updateTextMaintainCenter(text: self.currentTurn.action.description)
+		}, completion: nil)
+	}
+	
     private func startProgressBarAnimating() {
         self.progressBar.layer.removeAllAnimations()
         // force the progress to be 1 before we start if it is not already at 1
@@ -383,13 +418,13 @@ final class ViewController: UIViewController, GKGameCenterControllerDelegate {
             self.progressBar.layoutIfNeeded()
         }
     }
-    
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
-    
-    override var prefersStatusBarHidden: Bool {
-        return true
-    }
+	
+	// MARK: - Game Center
+	
+	func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
+		gameCenterViewController.dismiss(animated: true, completion: nil)
+	}
+	
+	
 }
 

@@ -71,9 +71,14 @@ public final class LeaderboardManager {
         presentingViewController.show(leaderboardViewController, sender: presentingViewController)
         presentingViewController.navigationController?.pushViewController(leaderboardViewController, animated: true)
     }
-    
+	
+	/// Will submit and save score only if it is a highscore
     public func submit(score scoreVal:UInt) {
+		// bail if score is not a highscore
+		if scoreVal < deviceHighscore { return }
+		// set the local highscore
         deviceHighscore = scoreVal
+		// submit highscore to game center
         let score = GKScore(leaderboardIdentifier: LeaderboardManager.leaderboardID)
         score.value = Int64(scoreVal)
         GKScore.report([score]) { [scoreVal] (error) in
