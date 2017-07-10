@@ -54,7 +54,7 @@ public final class Game {
     }
     
     /// The current state of the game.
-    private var currentState:State {
+    private var currentState:State = .notPlaying {
         didSet {
             // reset the game score when we restart the game
             if currentState == .playing && oldValue == .notPlaying {
@@ -64,14 +64,14 @@ public final class Game {
     }
     
     /// The current game score.
-    private var gameScore:UInt
+    private var gameScore:UInt = 0
     
     /// Keep track of the last action, so we don't do 2 of the same actions in a row.
     private var previousAction:Action = .volumeDown // just set it default to anything
     
     /// The expected next move of the player.
     /// - note: `nil` if game is not currently playing.
-    private var expectedPlayerMove:Action
+    private var expectedPlayerMove:Action = .tap
 	
 	/// Whether or not motion challenges should be selected.
     public var motionChallengesEnabled = true
@@ -79,11 +79,8 @@ public final class Game {
     /// Keep track of when we have the first turn, because the first one should not be a motion one.
     private var hasHadFirstTurn = false
     
-    public init() {
-        gameScore = 0
-        currentState = .notPlaying
-        expectedPlayerMove = .tap // doesn't matter, this is randomly set on the first turn
-    }
+    // nothing needed in here, all properties are already initalised
+    public init() { }
     
     /// Calling this tells the game it should progress to a new move.
     public func nextMove() -> TurnData {
@@ -104,6 +101,7 @@ public final class Game {
         return TurnData(action: expectedPlayerMove, newScore: gameScore, timeForMove: time(forAction: expectedPlayerMove))
     }
     
+    /// The time allowed for each given move.
     private func time(forAction action:Action) -> TimeInterval {
         switch action {
         case .swipeDown, .swipeUp, .swipeLeft, .swipeRight:
@@ -119,7 +117,7 @@ public final class Game {
         case .shake:
             return Game.SHAKE_TIME
         case .timeRanOut:
-            fatalError("time ran out is not an action that has a time")
+            fatalError("time ran out is not an action that does not have a time")
         }
     }
     
@@ -130,7 +128,7 @@ public final class Game {
         // we have taken a move, so we are now playing
         currentState = .playing
         
-        // evaluate this move we have just taken
+        // evaluate this move we have just taken, ending the game if we need to
         if move != expectedPlayerMove {
             currentState = .notPlaying
             hasHadFirstTurn = false
