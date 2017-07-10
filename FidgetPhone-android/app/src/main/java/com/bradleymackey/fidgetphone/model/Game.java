@@ -12,7 +12,8 @@ public final class Game {
 
     // Gives a notion of state to the game.
     private enum State {
-        PLAYING, NOTPLAYING
+        PLAYING,
+        NOTPLAYING;
     }
 
     // The current state of the game
@@ -22,7 +23,24 @@ public final class Game {
     private int gameScore;
 
     /// Keep track of the last action, so we don't do 2 of the same actions in a row.
-    private Action lastAction
+    private Action lastAction = Action.VOLUME_DOWN; // doesn't really matter what this is
 
+    /// The expected next move of the player.
+    /// - note: `null` if game is not currently playing.
+    private Action expectedPlayerMove;
+
+    /// Whether or not we have the ability to play the motion challenges.
+    private boolean motionChallengesEnabled;
+
+    /// Whether we have played the first turn or not, because the first turn should never be a motion challenge.
+    private boolean hasHadFirstTurn;
+
+    public Game() {
+        this.gameScore = 0;
+        this.currentState = State.NOTPLAYING;
+        this.expectedPlayerMove = Action.TAP;
+    }
+
+    public
 
 }
