@@ -118,6 +118,8 @@ public final class Game {
             return Game.upsideDownTime
         case .shake:
             return Game.shakeTime
+        case .timeRanOut:
+            fatalError("time ran out is not an action that has a time")
         }
     }
     

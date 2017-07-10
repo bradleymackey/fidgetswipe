@@ -16,6 +16,7 @@
 		970131B11F0FA64E00E9B267 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 970131AF1F0FA64E00E9B267 /* LaunchScreen.storyboard */; };
 		970131BC1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131BB1F0FA64E00E9B267 /* fidgetswipe_iosTests.swift */; };
 		970131C71F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */; };
+		972D6A0B1F139418004FB923 /* ExtraButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972D6A0A1F139418004FB923 /* ExtraButton.swift */; };
 		974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974594E51F0FAA290078E736 /* LeaderboardManager.swift */; };
 		97B669A41F10DBFA0079D7CB /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97B669A31F10DBFA0079D7CB /* GameKit.framework */; };
 		97BFCDD51F0FBB5D00FAE239 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */; };
@@ -63,6 +64,7 @@
 		970131C21F0FA64E00E9B267 /* fidgetswipe-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fidgetswipe-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		970131C61F0FA64E00E9B267 /* fidgetswipe_iosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fidgetswipe_iosUITests.swift; sourceTree = "<group>"; };
 		970131C81F0FA64E00E9B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		972D6A0A1F139418004FB923 /* ExtraButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtraButton.swift; sourceTree = "<group>"; };
 		974594E51F0FAA290078E736 /* LeaderboardManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardManager.swift; sourceTree = "<group>"; };
 		97B669A31F10DBFA0079D7CB /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		97BFCDD41F0FBB5D00FAE239 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				970131A81F0FA64E00E9B267 /* ViewController.swift */,
 				97CEF4A71F12200F004EE8E6 /* String+Hash.swift */,
 				97CEF4AC1F1223F9004EE8E6 /* Label+UpdateCenter.swift */,
+				972D6A0C1F13942B004FB923 /* View */,
 				97BFCDE11F0FE9C000FAE239 /* Leaderboard */,
 				97BFCDDA1F0FC81100FAE239 /* Game Model */,
 				970131AA1F0FA64E00E9B267 /* Main.storyboard */,
@@ -175,6 +178,14 @@
 				970131C81F0FA64E00E9B267 /* Info.plist */,
 			);
 			path = "fidgetswipe-iosUITests";
+			sourceTree = "<group>";
+		};
+		972D6A0C1F13942B004FB923 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				972D6A0A1F139418004FB923 /* ExtraButton.swift */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 		97BFCDDA1F0FC81100FAE239 /* Game Model */ = {
@@ -384,7 +395,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		05B8CE5A96AFFD3F86B8FE66 /* [CP] Copy Pods Resources */ = {
@@ -414,7 +425,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		317E536BC4CC19BF21364C43 /* [CP] Copy Pods Resources */ = {
@@ -474,7 +485,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		FF5F3BBD20564C39F5B7AE01 /* [CP] Embed Pods Frameworks */ = {
@@ -501,6 +512,7 @@
 			files = (
 				970131A91F0FA64E00E9B267 /* ViewController.swift in Sources */,
 				974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */,
+				972D6A0B1F139418004FB923 /* ExtraButton.swift in Sources */,
 				97CEF4AD1F1223F9004EE8E6 /* Label+UpdateCenter.swift in Sources */,
 				97BFCDE01F0FE30400FAE239 /* TurnData.swift in Sources */,
 				97CEF4A81F12200F004EE8E6 /* String+Hash.swift in Sources */,

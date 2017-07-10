@@ -47,15 +47,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     
     /// Whether the game has ended or not
     private var gameEnded = false
+    
+    /// The timer that keeps track of when we have run out of time
+    private var turnTimer:Timer?
 	
 	// MARK: View
 	
-	private enum Buttons : Int {
-		case leaderboard = 0
-		case share = 1
-	}
-	
-    
     private lazy var actionImageView:UIImageView = {
         let imageView = UIImageView(frame: .zero)
         let thirdWidth:CGFloat = self.view.frame.width/3
@@ -110,27 +107,23 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         return progress
     }()
 	
-	private lazy var leaderboardButton: UIButton = {
-		let button = UIButton(frame: .zero)
-		button.frame.size = CGSize(width: 48, height: 48)
-		button.setImage(UIImage(named: "leader"), for: .normal)
+	private lazy var leaderboardButton: ExtraButton = {
+        let button = ExtraButton(imageName: "leader", category: ExtraButton.Category.leaderboard)
 		let thirdWidth:CGFloat = self.view.frame.width/3
 		let quarterHeight:CGFloat = self.view.frame.height/5
 		button.center = CGPoint(x: thirdWidth, y: 4*quarterHeight)
-		button.tag = Buttons.leaderboard.rawValue
 		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+        button.alpha = 0 // initially hidden
 		return button
 	}()
 	
-	private lazy var shareButton: UIButton = {
-		let button = UIButton(frame: .zero)
-		button.frame.size = CGSize(width: 48, height: 48)
-		button.setImage(UIImage(named: "share"), for: .normal)
+	private lazy var shareButton: ExtraButton = {
+        let button = ExtraButton(imageName: "share", category: ExtraButton.Category.share)
 		let thirdWidth:CGFloat = self.view.frame.width/3
 		let quarterHeight:CGFloat = self.view.frame.height/5
 		button.center = CGPoint(x: 2*thirdWidth, y: 4*quarterHeight)
-		button.tag = Buttons.share.rawValue
 		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+        button.alpha = 0 // initially hidden
 		return button
 	}()
 	
@@ -327,12 +320,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	}
 	
 	@objc private func buttonPressed(sender:UIButton) {
-		guard let button = Buttons(rawValue: sender.tag) else { fatalError("invalid button tag!") }
+		guard let button = ExtraButton.Category(rawValue: sender.tag) else { fatalError("Invalid button tag trying to be handled!") }
 		switch button {
 		case .leaderboard:
 			LeaderboardManager.shared.showLeaderboard()
 		case .share:
-			let textToShare = "I can't stop fidgeting."
+			let textToShare = "Now you can fidget on your phone, let's play."
 			let urlToShare = URL(string: "https://itunes.apple.com/app/id769938884")!
 			let activity = UIActivityViewController(activityItems: [textToShare, urlToShare], applicationActivities: nil)
 			activity.excludedActivityTypes = [.print,.postToVimeo]
@@ -355,10 +348,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             LeaderboardManager.shared.submit(score: currentTurn.newScore)
             // make the score label extra big and show highscore label
             updateScoreLabelsForState(gameEnded: true)
+            changeExtraButtonsState(gameEnded: true)
         } else if gameEnded {
             gameEnded = false
             // return the label to a normal size and hide highscore label
             updateScoreLabelsForState(gameEnded: false)
+            changeExtraButtonsState(gameEnded: false)
         }
         
         // get the next turn from the game
@@ -440,6 +435,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     }
 	
 	private func displayNextActivity(previousTurnValid:Bool) {
+        turnTimer?.invalidate() // invalidate any existing timer
 		// show next activity image with a nice animation
 		UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
 			self.actionImageView.image = self.currentTurn.image
@@ -450,6 +446,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 			// restart the progress bar animation if turn was success
 			if previousTurnValid {
 				self.startProgressBarAnimating()
+                self.startCountdownClock()
 			}
 		})
 		// show next prompt label, also with a nice animation
@@ -469,13 +466,30 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             self.progressBar.layoutIfNeeded()
         }
     }
+    
+    private func startCountdownClock() {
+        turnTimer?.invalidate()
+        turnTimer = Timer.scheduledTimer(timeInterval: currentTurn.timeForMove, target: self, selector: #selector(ViewController.timeRanOut), userInfo: nil, repeats: false)
+    }
+    
+    @objc private func timeRanOut() {
+        // the time has run out, so just act as if we have entered an incorrect move
+        self.progressGame(previousTurnValid: game.take(move: .timeRanOut))
+    }
+    
+    private func changeExtraButtonsState(gameEnded:Bool) {
+        UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
+            let targetAlpha:CGFloat = gameEnded ? 1.0 : 0.0
+            self.leaderboardButton.alpha = targetAlpha
+            self.shareButton.alpha = targetAlpha
+        }
+    }
 	
 	// MARK: - Game Center
 	
 	public func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
 		gameCenterViewController.dismiss(animated: true, completion: nil)
 	}
-	
 	
 }
 

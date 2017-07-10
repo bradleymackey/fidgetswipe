@@ -23,6 +23,8 @@ public enum Action: Int, CustomStringConvertible {
     case faceUp     = 9
     case faceDown   = 10
     
+    case timeRanOut = 999
+    
     /// The total number of actions in the enum.
     public static let totalActions:UInt32 = 11
     
@@ -53,6 +55,8 @@ public enum Action: Int, CustomStringConvertible {
             return "FACE UP"
         case .faceDown:
             return "FACE DOWN"
+        case .timeRanOut:
+            fatalError("Time ran out is not an action that should be displayed")
         }
     }
     
@@ -60,7 +64,7 @@ public enum Action: Int, CustomStringConvertible {
         switch self {
         case .upsideDown, .faceUp, .faceDown, .shake:
             return true
-        case .tap, .swipeRight, .swipeLeft, .swipeDown, .swipeUp, .volumeUp, .volumeDown:
+        case .tap, .swipeRight, .swipeLeft, .swipeDown, .swipeUp, .volumeUp, .volumeDown, .timeRanOut:
             return false
         }
     }
