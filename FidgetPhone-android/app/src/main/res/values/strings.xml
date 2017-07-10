@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">FidgetPhone-android</string>
+    <string name="app_name">Fidget Phone</string>
+    <string name="tap">TAP</string>
 </resources>

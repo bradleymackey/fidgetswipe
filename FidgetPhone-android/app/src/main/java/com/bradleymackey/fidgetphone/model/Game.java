@@ -64,11 +64,11 @@ public final class Game {
         // make sure not to repeat the same action 2 times in a row
         if (!motionChallengesEnabled || !hasHadFirstTurn || previousAction.isMotionChallenge()) {
             hasHadFirstTurn = true;
-            while (expectedPlayerMove.isMotionChallenge() || expectedPlayerMove == previousAction) {
+            while (expectedPlayerMove.isMotionChallenge() || expectedPlayerMove == previousAction || expectedPlayerMove == TIME_RAN_OUT) {
                 this.expectedPlayerMove = Action.random();
             }
         } else {
-            while (expectedPlayerMove == previousAction) {
+            while (expectedPlayerMove == previousAction || expectedPlayerMove == TIME_RAN_OUT) {
                 this.expectedPlayerMove = Action.random();
             }
         }
@@ -98,7 +98,7 @@ public final class Game {
     }
 
     /// Player calls this when they take a move.
-    /// - returns: true if this was a vaild action, false if this was not, the game has now ended.
+    /// - returns: true if this was a valid action, false if this was not, the game has now ended.
     public boolean takeMove(Action move) {
 
         // we have taken a move, so we are now playing

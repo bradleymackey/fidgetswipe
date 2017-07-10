@@ -348,13 +348,15 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             // submit game center score
             LeaderboardManager.shared.submit(score: currentTurn.newScore)
             // make the score label extra big and show highscore label
-            updateScoreLabelsForState(gameEnded: true)
-            changeExtraButtonsState(gameEnded: true)
+            updateScoreLabels(forGameEnded: true)
+            // show the extra buttons
+            changeExtraButtons(forGameEnded: true)
         } else if gameEnded {
             gameEnded = false
             // return the label to a normal size and hide highscore label
-            updateScoreLabelsForState(gameEnded: false)
-            changeExtraButtonsState(gameEnded: false)
+            updateScoreLabels(forGameEnded: false)
+            // hide the extra buttons
+            changeExtraButtons(forGameEnded: false)
         }
         
         // get the next turn from the game
@@ -392,7 +394,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	
 	/// Animate a change in the appearance of the score labels (if a game has just began or ended)
 	/// - parameter gameEnded: whether the game has just began (false) or just ended (true)
-    private func updateScoreLabelsForState(gameEnded:Bool) {
+    private func updateScoreLabels(forGameEnded:Bool) {
         if gameEnded {
             // increase size of score label
             UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
@@ -493,7 +495,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     }
     
     /// Either shows or hides the extra buttons when a game ends or begins
-    private func changeExtraButtonsState(gameEnded:Bool) {
+    private func changeExtraButtons(forGameEnded gameEnded:Bool) {
         UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
             let targetAlpha:CGFloat = gameEnded ? 1.0 : 0.0
             self.leaderboardButton.alpha = targetAlpha
