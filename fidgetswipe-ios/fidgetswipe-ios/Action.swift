@@ -23,7 +23,7 @@ public enum Action: Int, CustomStringConvertible {
     case faceUp     = 9
     case faceDown   = 10
     
-    case timeRanOut = 999
+    case timeRanOut = 999 // special action, only called when the time has run out.
     
     /// The total number of actions in the enum.
     public static let totalActions:UInt32 = 11

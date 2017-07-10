@@ -39,13 +39,13 @@ if successful {
 /// Manages a game of Fidget Swipe
 public final class Game {
     
-    // MARK: Move times
-    public static let tapTime        = 1.7
-    public static let swipeTime      = 1.7
-    public static let shakeTime      = 2.0
-    public static let upsideDownTime = 2.1
-    public static let faceTime       = 2.1
-    public static let volumeTime     = 2.1
+    // MARK: Move Times
+    public static let TAP_TIME        = 1.7
+    public static let SWIPE_TIME      = 1.7
+    public static let SHAKE_TIME      = 2.0
+    public static let UPSIDE_DOWN_TIME = 2.1
+    public static let FACE_TIME       = 2.1
+    public static let VOLUME_TIME     = 2.1
     
     /// Gives a notion of state to the `Game` class.
     private enum State {
@@ -66,7 +66,7 @@ public final class Game {
     /// The current game score.
     private var gameScore:UInt
     
-    /// Keep track of the last action, so we dont do 2 of the same actions in a row.
+    /// Keep track of the last action, so we don't do 2 of the same actions in a row.
     private var previousAction:Action = .volumeDown // just set it default to anything
     
     /// The expected next move of the player.
@@ -107,17 +107,17 @@ public final class Game {
     private func time(forAction action:Action) -> TimeInterval {
         switch action {
         case .swipeDown, .swipeUp, .swipeLeft, .swipeRight:
-            return Game.swipeTime
+            return Game.SWIPE_TIME
         case .tap:
-            return Game.tapTime
+            return Game.TAP_TIME
         case .volumeUp, .volumeDown:
-            return Game.volumeTime
+            return Game.VOLUME_TIME
         case .faceDown, .faceUp:
-            return Game.faceTime
+            return Game.FACE_TIME
         case .upsideDown:
-            return Game.upsideDownTime
+            return Game.UPSIDE_DOWN_TIME
         case .shake:
-            return Game.shakeTime
+            return Game.SHAKE_TIME
         case .timeRanOut:
             fatalError("time ran out is not an action that has a time")
         }

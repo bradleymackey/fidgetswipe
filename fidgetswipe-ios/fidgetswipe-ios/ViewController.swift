@@ -101,7 +101,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     private lazy var progressBar:UIProgressView = {
         let progress = UIProgressView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 0)) // height is auto-set
         progress.progressViewStyle = .bar
-        progress.setProgress(1, animated:false)
+        progress.progress = 1
         progress.trackTintColor = .clear
         progress.progressTintColor = .white
         return progress
@@ -175,7 +175,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		self.view.addSubview(shareButton)
         
         // setup the game's first action
-        progressGame(previousTurnValid: false)
+        progressGame(previousTurnValid: false, isFirstLaunch: true)
 		
     }
 	
@@ -336,7 +336,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	// MARK: Game State / Animations
 	
     /// Progress the state of the game to the next turn.
-    private func progressGame(previousTurnValid: Bool) {
+    private func progressGame(previousTurnValid: Bool, isFirstLaunch: Bool = false) {
 		
         // prevent spamming
         acceptInput = false
@@ -363,7 +363,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         startAccelerometerUpdates(ifNeededforAction: currentTurn.action)
 
         // animate to the next turn
-        animateActionRecieved(forPreviousTurnValid: previousTurnValid)
+        animateActionRecieved(forPreviousTurnValid: previousTurnValid, isFirstLanuch: isFirstLaunch)
         
     }
 	
@@ -416,11 +416,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     }
 	
     /// Animates for when an action is first received, i.e. we colour the icon and time bar either red or green. We then fire off the `displayNextAction` method on completion of this method.
-    private func animateActionRecieved(forPreviousTurnValid previousTurnValid:Bool) {
+    private func animateActionRecieved(forPreviousTurnValid previousTurnValid:Bool, isFirstLanuch:Bool=false) {
         let animationDuration:TimeInterval = previousTurnValid ? ViewController.greenFlashAnimationTime : ViewController.redFlashAnimationTime
         self.progressBar.layer.removeAllAnimations()
         self.progressBar.progress = 1
         UIView.animate(withDuration: animationDuration, animations: {
+            if isFirstLanuch { return } // no colour flash animation if this is the first launch
             self.actionImageView.tintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
             self.progressBar.layoutIfNeeded()
             self.progressBar.progressTintColor = previousTurnValid ? ViewController.greenColor : ViewController.redColor
@@ -431,15 +432,21 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             self.actionImageView.tintColor = .white
             self.progressBar.progressTintColor = .white
 			// animate to the next activity image with a nice animation
-			self.displayNextAction(previousTurnValid: previousTurnValid)
+            self.displayNextAction(previousTurnValid: previousTurnValid)
         }
     }
 	
     /// Displays the next action with a nice animation, then start the timer system to make sure the user does not take too long.
-	private func displayNextAction(previousTurnValid:Bool) {
+    private func displayNextAction(previousTurnValid:Bool, isFirstLanuch:Bool=false) {
         turnTimer?.invalidate() // invalidate any existing timer
-		// show next activity image with a nice animation
+		// if first lanuch, just show image without animation
+        if isFirstLanuch {
+            self.actionImageView.image = self.currentTurn.image
+            self.promptLabel.updateTextMaintainCenter(self.currentTurn.action.description)
+        }
+        // show next activity image with a nice animation
 		UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
+            if isFirstLanuch { return }
 			self.actionImageView.image = self.currentTurn.image
 		}, completion: { _ in
 			// on the image changing...
@@ -453,6 +460,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		})
 		// show next prompt label, also with a nice animation
 		UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
+            if isFirstLanuch { return }
 			self.promptLabel.updateTextMaintainCenter(self.currentTurn.action.description)
 		}, completion: nil)
 	}
