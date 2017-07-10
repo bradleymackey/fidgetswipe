@@ -65,7 +65,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     
     private lazy var promptLabel:UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: 1)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 15, weight: 1)
         label.textColor = .lightGray
         let thirdWidth:CGFloat = self.view.frame.width/3
         label.center = CGPoint(x: self.view.center.x, y: self.view.center.y+(thirdWidth/1.8)+20)
@@ -182,6 +182,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	// MARK: Setup
 	
 	/// When called, the system volume indicator will no longer be displayed (given that we have the right AVAudioSessionCategory set).
+    /// - note: this a bit 'hacky' but I think it's the only way.
     private func hideVolumeIndicator() {
         let volumeView = MPVolumeView(frame: .zero)
         volumeView.center = CGPoint(x: -150, y: -150) // place it at a point where it will not be visible.

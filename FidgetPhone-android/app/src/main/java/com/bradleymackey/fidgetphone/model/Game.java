@@ -1,6 +1,6 @@
 package com.bradleymackey.fidgetphone.model;
 
-import static com.bradleymackey.fidgetphone.model.Action.TAP;
+import static com.bradleymackey.fidgetphone.model.Action.*;
 
 public final class Game {
 
@@ -22,6 +22,7 @@ public final class Game {
     // ONLY EVER SET THIS WITH THE DESIGNATED SETTER, BECAUSE WE NEED CUSTOM BEHAVIOUR UPON SETTING
     private State currentState = State.NOT_PLAYING;
 
+    // The custom setter for currentState
     private void setCurrentState(State newState) {
         if (currentState == State.NOT_PLAYING && newState == State.PLAYING) {
             gameScore = 0;
@@ -115,7 +116,5 @@ public final class Game {
         }
 
     }
-
-
 
 }
