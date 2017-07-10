@@ -415,6 +415,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         }
     }
 	
+    /// Animates for when an action is first received, i.e. we colour the icon and time bar either red or green. We then fire off the `displayNextAction` method on completion of this method.
     private func animateActionRecieved(forPreviousTurnValid previousTurnValid:Bool) {
         let animationDuration:TimeInterval = previousTurnValid ? ViewController.greenFlashAnimationTime : ViewController.redFlashAnimationTime
         self.progressBar.layer.removeAllAnimations()
@@ -430,11 +431,12 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
             self.actionImageView.tintColor = .white
             self.progressBar.progressTintColor = .white
 			// animate to the next activity image with a nice animation
-			self.displayNextActivity(previousTurnValid: previousTurnValid)
+			self.displayNextAction(previousTurnValid: previousTurnValid)
         }
     }
 	
-	private func displayNextActivity(previousTurnValid:Bool) {
+    /// Displays the next action with a nice animation, then start the timer system to make sure the user does not take too long.
+	private func displayNextAction(previousTurnValid:Bool) {
         turnTimer?.invalidate() // invalidate any existing timer
 		// show next activity image with a nice animation
 		UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
@@ -455,6 +457,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		}, completion: nil)
 	}
 	
+    /// Starts the progress bar animating to 0 when we are on a new action for a currently executing game.
     private func startProgressBarAnimating() {
         self.progressBar.layer.removeAllAnimations()
         // force the progress to be 1 before we start if it is not already at 1
@@ -467,16 +470,20 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         }
     }
     
+    /// Starts the timer to know when a turn has ran out of time.
     private func startCountdownClock() {
         turnTimer?.invalidate()
         turnTimer = Timer.scheduledTimer(timeInterval: currentTurn.timeForMove, target: self, selector: #selector(ViewController.timeRanOut), userInfo: nil, repeats: false)
     }
     
+    /// Called by `turnTimer` when time has run out. i.e. this simply calls `progressGame(previousTurnValid: game.take(move: .timeRanOut))`.
+    /// - important: this is the only place where the special `.timeRanOut` action should be used.
     @objc private func timeRanOut() {
         // the time has run out, so just act as if we have entered an incorrect move
         self.progressGame(previousTurnValid: game.take(move: .timeRanOut))
     }
     
+    /// Either shows or hides the extra buttons when a game ends or begins
     private func changeExtraButtonsState(gameEnded:Bool) {
         UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
             let targetAlpha:CGFloat = gameEnded ? 1.0 : 0.0
