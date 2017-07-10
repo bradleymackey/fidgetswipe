@@ -34,16 +34,19 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     
     /// Manages the whole game.
     private var game = Game()
+	
+	/// The current turn that we expect from the user.
+	/// This is used so we know which challenge this is, so we can do custom ignoring of some events for some challenges.
     private var currentTurn:TurnData!
     
     /// Variable so we know when we should accept user input (spam prevention)
     private var acceptInput = false
     
     /// Motion manager to read accelerometer events.
-    private var motionManager:CMMotionManager!
+    private var motionManager = CMMotionManager()
     
     /// The previous level of volume.
-    private var previousVolumeLevel:Float = -1
+    private var previousVolumeLevel:Float = -1 // -1 initially
     
     /// Whether the game has ended or not
     private var gameEnded = false
@@ -112,7 +115,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		let thirdWidth:CGFloat = self.view.frame.width/3
 		let quarterHeight:CGFloat = self.view.frame.height/5
 		button.center = CGPoint(x: thirdWidth, y: 4*quarterHeight)
-		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+		button.addTarget(self, action: #selector(ViewController.extraButtonPressed(sender:)), for: .touchUpInside)
         button.alpha = 0 // initially hidden
 		return button
 	}()
@@ -122,7 +125,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		let thirdWidth:CGFloat = self.view.frame.width/3
 		let quarterHeight:CGFloat = self.view.frame.height/5
 		button.center = CGPoint(x: 2*thirdWidth, y: 4*quarterHeight)
-		button.addTarget(self, action: #selector(ViewController.buttonPressed(sender:)), for: .touchUpInside)
+		button.addTarget(self, action: #selector(ViewController.extraButtonPressed(sender:)), for: .touchUpInside)
         button.alpha = 0 // initially hidden
 		return button
 	}()
@@ -145,6 +148,9 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	
     override public func viewDidLoad() {
         super.viewDidLoad()
+		
+		// add the necessary views to the screen
+		addViewsToScreen()
         
         // hide volume indicator
         hideVolumeIndicator()
@@ -162,17 +168,8 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         // Setup the Game Center ready for posting leaderboard scores.
         LeaderboardManager.shared.set(presentingViewController: self)
         
-        // Setup the motion manager
-        setupMotionManager()
-        
-        // Add the views for the game
-        self.view.addSubview(actionImageView)
-        self.view.addSubview(scoreLabel)
-        self.view.addSubview(promptLabel)
-        self.view.addSubview(progressBar)
-        self.view.addSubview(highscoreLabel)
-		self.view.addSubview(leaderboardButton)
-		self.view.addSubview(shareButton)
+        // if we have no accelerometer avalible, disable the motion challenges for the game.
+        disableMotionChallengesIfNeeded()
         
         // setup the game's first action
         progressGame(previousTurnValid: false, isFirstLaunch: true)
@@ -180,6 +177,17 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     }
 	
 	// MARK: Setup
+	
+	/// Adds all the extra views/game elements to the view
+	private func addViewsToScreen() {
+		self.view.addSubview(actionImageView)
+		self.view.addSubview(scoreLabel)
+		self.view.addSubview(promptLabel)
+		self.view.addSubview(progressBar)
+		self.view.addSubview(highscoreLabel)
+		self.view.addSubview(leaderboardButton)
+		self.view.addSubview(shareButton)
+	}
 	
 	/// When called, the system volume indicator will no longer be displayed (given that we have the right AVAudioSessionCategory set).
     /// - note: this a bit 'hacky' but I think it's the only way.
@@ -220,8 +228,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	}
 	
 	/// Creates a motion manager and deactivates accelerometer challenges if we have no accelerometer avaliable.
-	private func setupMotionManager() {
-		motionManager = CMMotionManager()
+	private func disableMotionChallengesIfNeeded() {
 		// only enable motion challenges if we have an accelerometer accessable.
 		if !motionManager.isAccelerometerAvailable {
 			Analytics.logEvent("accelerometer_not_ava", parameters: nil)
@@ -298,20 +305,24 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	}
 	
 	private func handleMotionActionVerification(accelerometerData:CMAccelerometerData, action:Action) {
-		let acceleration = accelerometerData.acceleration
+		// get component values
+		let x = accelerometerData.acceleration.x
+		let y = accelerometerData.acceleration.y
+		let z = accelerometerData.acceleration.z
+		// determine current device position
 		switch action {
 		case .faceDown:
-			if acceleration.x < 0.25 && acceleration.x > -0.25 && acceleration.y < 0.25 && acceleration.y > -0.25 && acceleration.z < 1.25 && acceleration.z > 0.75 {
+			if x < 0.25 && x > -0.25 && y < 0.25 && y > -0.25 && z < 1.25 && z > 0.75 {
 				Analytics.logEvent("face_down", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .faceDown))
 			}
 		case .faceUp:
-			if acceleration.x < 0.25 && acceleration.x > -0.25 && acceleration.y < 0.25 && acceleration.y > -0.25 && acceleration.z > -1.25 && acceleration.z < -0.75 {
+			if x < 0.25 && x > -0.25 && y < 0.25 && y > -0.25 && z > -1.25 && z < -0.75 {
 				Analytics.logEvent("face_up", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .faceUp))
 			}
 		case .upsideDown:
-			if acceleration.y > 0.75 && acceleration.y < 1.25 {
+			if y > 0.75 && y < 1.25 {
 				Analytics.logEvent("upside_down", parameters: nil)
 				progressGame(previousTurnValid: game.take(move: .upsideDown))
 			}
@@ -320,7 +331,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		}
 	}
 	
-	@objc private func buttonPressed(sender:UIButton) {
+	@objc private func extraButtonPressed(sender:UIButton) {
 		guard let button = ExtraButton.Category(rawValue: sender.tag) else { fatalError("Invalid button tag trying to be handled!") }
 		switch button {
 		case .leaderboard:
@@ -362,7 +373,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         // get the next turn from the game
         currentTurn = game.nextMove()
         
-        // start listening for accelerometer updates if needed
+        // start listening for accelerometer updates if needed (and stop if this is a motion challenge)
         startAccelerometerUpdates(ifNeededforAction: currentTurn.action)
 
         // animate to the next turn
@@ -372,7 +383,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	
 	private func startAccelerometerUpdates(ifNeededforAction action:Action) {
 		
-		// stop acceleromter updates if this is not a motion challenege
+		// stop acceleromter updates if this is not a motion challenege (not shake! even though it is a motion challenge, iOS allows a different, simpler way to determine if the device has been shaken!)
 		if (!action.isMotionChallenge && motionManager.isAccelerometerAvailable) || action == .shake {
 			motionManager.stopAccelerometerUpdates()
 			return
@@ -392,31 +403,6 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		
 	}
 	
-	/// Animate a change in the appearance of the score labels (if a game has just began or ended)
-	/// - parameter gameEnded: whether the game has just began (false) or just ended (true)
-    private func updateScoreLabels(forGameEnded:Bool) {
-        if gameEnded {
-            // increase size of score label
-            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
-                self.scoreLabel.transform = CGAffineTransform(scaleX: 1.45, y: 1.45)
-            }, completion: nil)
-            // show the highscore label
-            UIView.transition(with: self.highscoreLabel, duration: 0.25, options: [], animations: {
-                self.highscoreLabel.updateTextMaintainCenter("HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
-            }, completion: nil)
-        } else {
-			// prevent a brief '0' from glitching
-			self.scoreLabel.updateTextMaintainCenter("1")
-            // decrease size of score label
-            UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
-                self.scoreLabel.transform = CGAffineTransform.identity
-            }
-            // hide the highscore label
-            UIView.transition(with: self.highscoreLabel, duration: ViewController.nextMoveAnimationTime, options: [], animations: {
-                self.highscoreLabel.updateTextMaintainCenter("")
-            }, completion: nil)
-        }
-    }
 	
     /// Animates for when an action is first received, i.e. we colour the icon and time bar either red or green. We then fire off the `displayNextAction` method on completion of this method.
     private func animateActionRecieved(forPreviousTurnValid previousTurnValid:Bool, isFirstLanuch:Bool=false) {
@@ -440,16 +426,16 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
     }
 	
     /// Displays the next action with a nice animation, then start the timer system to make sure the user does not take too long.
-    private func displayNextAction(previousTurnValid:Bool, isFirstLanuch:Bool=false) {
+    private func displayNextAction(previousTurnValid:Bool, isFirstLaunch:Bool=false) {
         turnTimer?.invalidate() // invalidate any existing timer
 		// if first lanuch, just show image without animation
-        if isFirstLanuch {
+        if isFirstLaunch {
             self.actionImageView.image = self.currentTurn.image
             self.promptLabel.updateTextMaintainCenter(self.currentTurn.action.description)
         }
         // show next activity image with a nice animation
 		UIView.transition(with: self.actionImageView, duration: ViewController.nextMoveAnimationTime, options: [.transitionFlipFromTop], animations: {
-            if isFirstLanuch { return }
+            if isFirstLaunch { return }
 			self.actionImageView.image = self.currentTurn.image
 		}, completion: { _ in
 			// on the image changing...
@@ -493,7 +479,33 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
         // the time has run out, so just act as if we have entered an incorrect move
         self.progressGame(previousTurnValid: game.take(move: .timeRanOut))
     }
-    
+	
+	/// Animate a change in the appearance of the score labels (if a game has just began or ended)
+	/// - parameter gameEnded: whether the game has just began (false) or just ended (true)
+	private func updateScoreLabels(forGameEnded:Bool) {
+		if gameEnded {
+			// increase size of score label
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
+				self.scoreLabel.transform = CGAffineTransform(scaleX: 1.45, y: 1.45)
+			}, completion: nil)
+			// show the highscore label
+			UIView.transition(with: self.highscoreLabel, duration: 0.25, options: [], animations: {
+				self.highscoreLabel.updateTextMaintainCenter("HIGHSCORE \(LeaderboardManager.shared.deviceHighscore)")
+			}, completion: nil)
+		} else {
+			// prevent a brief '0' from glitching
+			self.scoreLabel.updateTextMaintainCenter("1")
+			// decrease size of score label
+			UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {
+				self.scoreLabel.transform = CGAffineTransform.identity
+			}
+			// hide the highscore label
+			UIView.transition(with: self.highscoreLabel, duration: ViewController.nextMoveAnimationTime, options: [], animations: {
+				self.highscoreLabel.updateTextMaintainCenter("")
+			}, completion: nil)
+		}
+	}
+	
     /// Either shows or hides the extra buttons when a game ends or begins
     private func changeExtraButtons(forGameEnded gameEnded:Bool) {
         UIView.animate(withDuration: ViewController.nextMoveAnimationTime) {

@@ -28,7 +28,7 @@ public enum Action {
     public static Action random()  {
         Action randomAction = TIME_RAN_OUT;
         while (randomAction == TIME_RAN_OUT) {
-            randomAction = VALUES.get(RANDOM.nextInt(SIZE)-1);
+            randomAction = VALUES.get(RANDOM.nextInt(SIZE));
         }
         return VALUES.get(RANDOM.nextInt(SIZE));
     }

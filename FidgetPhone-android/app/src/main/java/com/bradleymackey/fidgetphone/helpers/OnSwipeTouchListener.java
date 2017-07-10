@@ -1,4 +1,4 @@
-package com.bradleymackey.fidgetphone;
+package com.bradleymackey.fidgetphone.helpers;
 
 import android.content.Context;
 import android.view.GestureDetector;
@@ -28,6 +28,12 @@ public abstract class OnSwipeTouchListener implements OnTouchListener {
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            quickTouch();
+            return super.onSingleTapUp(e);
         }
 
         @Override
@@ -68,4 +74,6 @@ public abstract class OnSwipeTouchListener implements OnTouchListener {
     public abstract void onSwipeTop();
 
     public abstract void onSwipeBottom();
+
+    public abstract void quickTouch();
 }
