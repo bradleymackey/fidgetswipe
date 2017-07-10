@@ -11,10 +11,11 @@ import CoreMotion
 import MediaPlayer
 import GameKit
 import FirebaseAnalytics
+import FBAudienceNetwork
 
 public typealias SwipeDirection = UISwipeGestureRecognizerDirection
 
-public final class ViewController: UIViewController, GKGameCenterControllerDelegate {
+public final class ViewController: UIViewController, GKGameCenterControllerDelegate, FBAdViewDelegate {
     
     // MARK: - Static Properties
     
@@ -130,6 +131,15 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		return button
 	}()
 	
+	private lazy var adView:FBAdView = {
+		FBAdSettings.setLogLevel(.debug)
+		FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
+		let ad = FBAdView(placementID: "", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+		ad.frame = CGRect(x: 0, y: self.view.frame.height-ad.bounds.size.height, width: ad.bounds.size.width, height: ad.bounds.size.height)
+		ad.delegate = self
+		return ad
+	}()
+	
 	// MARK: Configuration
 	
 	// Become the first responder for shake events.
@@ -187,6 +197,11 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		self.view.addSubview(highscoreLabel)
 		self.view.addSubview(leaderboardButton)
 		self.view.addSubview(shareButton)
+		if (AdvertManager.shared.adsEnabled == true) {
+			self.view.addSubview(adView)
+			adView.loadAd()
+		}
+		
 	}
 	
 	/// When called, the system volume indicator will no longer be displayed (given that we have the right AVAudioSessionCategory set).
@@ -449,7 +464,7 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		})
 		// show next prompt label, also with a nice animation
 		UIView.transition(with: self.promptLabel, duration: ViewController.nextMoveAnimationTime, options: [.transitionCrossDissolve], animations: {
-            if isFirstLanuch { return }
+            if isFirstLaunch { return }
 			self.promptLabel.updateTextMaintainCenter(self.currentTurn.action.description)
 		}, completion: nil)
 	}
@@ -519,6 +534,16 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 	
 	public func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
 		gameCenterViewController.dismiss(animated: true, completion: nil)
+	}
+	
+	// MARK: - Adverts
+	
+	public func adViewDidClick(_ adView: FBAdView) {
+		Analytics.logEvent("ad_click", parameters: nil)
+	}
+	
+	public func adViewWillLogImpression(_ adView: FBAdView) {
+		Analytics.logEvent("ad_impression", parameters: nil)
 	}
 	
 }

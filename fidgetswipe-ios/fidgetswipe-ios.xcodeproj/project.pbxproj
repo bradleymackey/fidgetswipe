@@ -25,6 +25,7 @@
 		97BFCDE01F0FE30400FAE239 /* TurnData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BFCDDF1F0FE30400FAE239 /* TurnData.swift */; };
 		97CEF4A81F12200F004EE8E6 /* String+Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CEF4A71F12200F004EE8E6 /* String+Hash.swift */; };
 		97CEF4AD1F1223F9004EE8E6 /* Label+UpdateCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CEF4AC1F1223F9004EE8E6 /* Label+UpdateCenter.swift */; };
+		97EA67A21F1439620074266E /* AdvertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EA67A11F1439620074266E /* AdvertManager.swift */; };
 		C49A787BD61A8741C647969B /* Pods_fidgetswipe_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86DE2F427AA4277B57C5C492 /* Pods_fidgetswipe_ios.framework */; };
 /* End PBXBuildFile section */
 
@@ -74,6 +75,7 @@
 		97CEF4A71F12200F004EE8E6 /* String+Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Hash.swift"; sourceTree = "<group>"; };
 		97CEF4A91F122048004EE8E6 /* fidgetswipe-ios-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fidgetswipe-ios-Bridging-Header.h"; sourceTree = "<group>"; };
 		97CEF4AC1F1223F9004EE8E6 /* Label+UpdateCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Label+UpdateCenter.swift"; sourceTree = "<group>"; };
+		97EA67A11F1439620074266E /* AdvertManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvertManager.swift; sourceTree = "<group>"; };
 		9F8AE2447B3289BDF4D06D38 /* Pods_fidgetswipe_iosTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fidgetswipe_iosTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A57B3D95EAB80D57CA002040 /* Pods-fidgetswipe-iosUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-iosUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-iosUITests/Pods-fidgetswipe-iosUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		C403F0872668D0DDD02523A7 /* Pods-fidgetswipe-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fidgetswipe-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-fidgetswipe-ios/Pods-fidgetswipe-ios.release.xcconfig"; sourceTree = "<group>"; };
@@ -147,8 +149,8 @@
 			children = (
 				970131A61F0FA64E00E9B267 /* AppDelegate.swift */,
 				970131A81F0FA64E00E9B267 /* ViewController.swift */,
-				97CEF4A71F12200F004EE8E6 /* String+Hash.swift */,
-				97CEF4AC1F1223F9004EE8E6 /* Label+UpdateCenter.swift */,
+				97EA67A11F1439620074266E /* AdvertManager.swift */,
+				97EA67A31F143A490074266E /* Extras */,
 				972D6A0C1F13942B004FB923 /* View */,
 				97BFCDE11F0FE9C000FAE239 /* Leaderboard */,
 				97BFCDDA1F0FC81100FAE239 /* Game Model */,
@@ -204,6 +206,15 @@
 				974594E51F0FAA290078E736 /* LeaderboardManager.swift */,
 			);
 			name = Leaderboard;
+			sourceTree = "<group>";
+		};
+		97EA67A31F143A490074266E /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				97CEF4A71F12200F004EE8E6 /* String+Hash.swift */,
+				97CEF4AC1F1223F9004EE8E6 /* Label+UpdateCenter.swift */,
+			);
+			name = Extras;
 			sourceTree = "<group>";
 		};
 		D1BBA55BED128F96645E9A9A /* Pods */ = {
@@ -513,6 +524,7 @@
 				970131A91F0FA64E00E9B267 /* ViewController.swift in Sources */,
 				974594E61F0FAA290078E736 /* LeaderboardManager.swift in Sources */,
 				972D6A0B1F139418004FB923 /* ExtraButton.swift in Sources */,
+				97EA67A21F1439620074266E /* AdvertManager.swift in Sources */,
 				97CEF4AD1F1223F9004EE8E6 /* Label+UpdateCenter.swift in Sources */,
 				97BFCDE01F0FE30400FAE239 /* TurnData.swift in Sources */,
 				97CEF4A81F12200F004EE8E6 /* String+Hash.swift in Sources */,

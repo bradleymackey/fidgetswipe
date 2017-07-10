@@ -9,6 +9,8 @@ target 'fidgetswipe-ios' do
   
   pod 'Firebase'
   pod 'Firebase/Performance'
+  pod 'Firebase/RemoteConfig'
+  pod 'FBAudienceNetwork'
 
   target 'fidgetswipe-iosTests' do
     inherit! :search_paths

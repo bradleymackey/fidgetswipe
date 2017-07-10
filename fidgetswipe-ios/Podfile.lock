@@ -1,4 +1,5 @@
 PODS:
+  - FBAudienceNetwork (4.24.0)
   - Firebase (4.0.3):
     - Firebase/Core (= 4.0.3)
   - Firebase/Core (4.0.3):
@@ -7,6 +8,9 @@ PODS:
   - Firebase/Performance (4.0.3):
     - Firebase/Core
     - FirebasePerformance (= 1.0.3)
+  - Firebase/RemoteConfig (4.0.3):
+    - Firebase/Core
+    - FirebaseRemoteConfig (= 2.0.1)
   - FirebaseAnalytics (4.0.2):
     - FirebaseCore (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
@@ -22,6 +26,11 @@ PODS:
     - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - GTMSessionFetcher/Core (~> 1.1)
     - Protobuf (~> 3.1)
+  - FirebaseRemoteConfig (2.0.1):
+    - FirebaseAnalytics (~> 4.0)
+    - FirebaseInstanceID (~> 2.0)
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+    - Protobuf (~> 3.1)
   - GoogleToolboxForMac/Defines (2.1.1)
   - GoogleToolboxForMac/Logger (2.1.1):
     - GoogleToolboxForMac/Defines (= 2.1.1)
@@ -31,19 +40,23 @@ PODS:
   - Protobuf (3.3.0)
 
 DEPENDENCIES:
+  - FBAudienceNetwork
   - Firebase
   - Firebase/Performance
+  - Firebase/RemoteConfig
 
 SPEC CHECKSUMS:
+  FBAudienceNetwork: 740792924c6bcc5a59dc26fbafc9fd950bebed7d
   Firebase: 9e33fdfbca37cab635c693883caa90a4475b842b
   FirebaseAnalytics: ad41720e3e67fc63fbe3d2948d3e26932a8de311
   FirebaseCore: c709067051de07bdaffdc4e735cd7299a23c463a
   FirebaseInstanceID: 9fbf536668f4d3f0880e7438456dabd1376e294b
   FirebasePerformance: 36bdb0500213b459ae991766801d5dc5399ff231
+  FirebaseRemoteConfig: 328244399f64226cfdfa32efee596bb010ef5665
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
   GTMSessionFetcher: 30d874b96d0d76028f61fbd122801e3f030d47db
   Protobuf: d582fecf68201eac3d79ed61369ef45734394b9c
 
-PODFILE CHECKSUM: b9c7cc6d0e324e41a61224dc0288e16e07025761
+PODFILE CHECKSUM: 44cac81a9a402328a86c1b4eb7bc58cd8b5b8056
 
 COCOAPODS: 1.2.1
