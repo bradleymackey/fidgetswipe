@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     };
 
     /// Variable so we know when we should accept user input (spam prevention)
-    private boolean acceptInput = false;
+    private boolean acceptInput = true;
 
     /// Whether the game has ended or not
     private boolean gameEnded = false;
@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void quickTouch() {
+                if (!acceptInput) { return; }
                 Log.i(TAG, "quick tap!");
                 MainActivity.this.progressGame(game.takeMove(TAP), false);
             }
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void progressGame(boolean previousTurnValid, boolean isFirstLaunch) {
 
         // stop accepting input (to prevent spamming)
-        acceptInput = false;
+        acceptInput = true;
 
         if (!previousTurnValid && currentTurn != null) {
             gameEnded = true;
