@@ -1,17 +1,27 @@
 package com.bradleymackey.fidgetphone;
 
-import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,14 +32,16 @@ import com.bradleymackey.fidgetphone.model.Action;
 import com.bradleymackey.fidgetphone.model.Game;
 import com.bradleymackey.fidgetphone.model.TurnData;
 
-import org.w3c.dom.Text;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.bradleymackey.fidgetphone.model.Action.*;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     // MARK: Logging
 
@@ -54,21 +66,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // Manage the timing of turns
     private Timer turnTimer = new Timer("turn_timer");
-    private TimerTask timerTask = new TimerTask() {
+
+    private class MyTimerTask extends TimerTask {
         @Override
         public void run() {
             MainActivity.this.timeRanOut();
         }
-
-        @Override
-        public boolean cancel() {
-            Log.i(TAG, "timer task being cancelled!");
-            return super.cancel();
-        }
-    };
+    }
 
     /// Variable so we know when we should accept user input (spam prevention)
-    private boolean acceptInput = true;
+    private boolean acceptInput = false;
 
     /// Whether the game has ended or not
     private boolean gameEnded = false;
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ProgressBar mProgressBar;
     private TextView mScoreLabel;
     private TextView mHighscoreLabel;
-    private ImageView mActionImageView;
+    private ImageSwitcher mActionImageSwitcher;
     private TextView mPromptLabel;
 
     // MARK: Initalisation
@@ -116,8 +123,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mScoreLabel = (TextView) findViewById(R.id.scoreLabel);
         mHighscoreLabel = (TextView) findViewById(R.id.highscoreLabel);
-        mActionImageView = (ImageView) findViewById(R.id.imageView);
+        mHighscoreLabel.setAlpha(0.0f); // highscore label initially hidden
+        mActionImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
         mPromptLabel = (TextView) findViewById(R.id.promptLabel);
+        mActionImageSwitcher.setFactory(new ImageSwitcher.ViewFactory() {
+            public View makeView() {
+                ImageView myView = new ImageView(getApplicationContext());
+                return myView;
+            }
+        });
+//        mActionImageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.flip_in));
+//        mActionImageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.flip_in));
     }
 
     // MARK: Interaction Handling
@@ -179,19 +195,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void handleMotionActionVerification(float x, float y, float z) {
+        Log.i(TAG,"x:" + x + " y:" + y + " z:" + z);
         switch (currentTurn.getAction()) {
             case FACE_DOWN:
-                if (x < 0.25 && x > -0.25 && y < 0.25 && y > -0.25 && z < 1.25 && z > 0.75) {
+                if (x < 1.5 && x > -1.5 && y < 1.5 && y > -1.5 && z < -8.5 && z > -11.5) {
                     progressGame(game.takeMove(FACE_DOWN),false);
                 }
                 break;
             case FACE_UP:
-                if (x < 0.25 && x > -0.25 && y < 0.25 && y > -0.25 && z > -1.25 && z < -0.75) {
+                if (x < 1.5 && x > -1.5 && y < 1.5 && y > -1.5 && z > 8.5 && z < 11.5) {
                     progressGame(game.takeMove(FACE_UP),false);
                 }
                 break;
             case UPSIDE_DOWN:
-                if (y > 0.75 && y < 1.25) {
+                if (y > -11.5 && y < -8.5) {
                     progressGame(game.takeMove(UPSIDE_DOWN),false);
                 }
                 break;
@@ -266,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void progressGame(boolean previousTurnValid, boolean isFirstLaunch) {
 
         // stop accepting input (to prevent spamming)
-        acceptInput = true;
+        acceptInput = false;
 
         if (!previousTurnValid && currentTurn != null) {
             gameEnded = true;
@@ -300,33 +317,97 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    private void animateActionRecievedForPreviousTurnValid(boolean previousTurnValid, boolean isFirstLaunch) {
-        long animationDuration = previousTurnValid ? GREEN_FLASH_ANIMATION_TIME : RED_FLASH_ANIMATION_TIME;
+    private void animateActionRecievedForPreviousTurnValid(final boolean previousTurnValid, final boolean isFirstLaunch) {
+        final long animationDuration = previousTurnValid ? GREEN_FLASH_ANIMATION_TIME : RED_FLASH_ANIMATION_TIME;
         // Animate progress bar back to full
-        ProgressBarAnimation progressBarUpAnimation = new ProgressBarAnimation(mProgressBar,mProgressBar.getProgress(),mProgressBar.getMax());
-        progressBarUpAnimation.setDuration(animationDuration);
-        mProgressBar.startAnimation(progressBarUpAnimation);
-        // TODO: animate flash progress bar and score label red/green and [restore progress bar to 1](done)
-        // TODO: on completion of that, update the score label, and remove the tint colours and call displayNextAction (below)
+        Handler progressBarHandler = new Handler(Looper.getMainLooper());
+        progressBarHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ProgressBarAnimation progressBarUpAnimation = new ProgressBarAnimation(mProgressBar,mProgressBar.getProgress(),mProgressBar.getMax());
+                progressBarUpAnimation.setDuration(animationDuration);
+                mProgressBar.startAnimation(progressBarUpAnimation);
+            }
+        });
+
+        // set the tint color of the image and the progress bar (not animated)
+        if (previousTurnValid) {
+            tintProgressBar(R.color.greenColor);
+           // mActionImageSwitcher.setColorFilter(ContextCompat.getColor(this,R.color.greenColor));
+        } else {
+            tintProgressBar(R.color.redColor);
+           // mActionImageSwitcher.setColorFilter(ContextCompat.getColor(this,R.color.redColor));
+        }
+
+        /* code to run after the tint */
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                /* code that runs after the delay */
+                // set the new score
+                MainActivity.this.mScoreLabel.setText(String.valueOf(currentTurn.getNewScore()));
+                // restore tint colors
+                MainActivity.this.tintProgressBar(R.color.colorAccent);
+              //  MainActivity.this.mActionImageSwitcher.getForeground().setColorFilter(R.color.colorAccent);
+                // display the next action
+                MainActivity.this.displayNextAction(previousTurnValid,isFirstLaunch);
+            }
+        }, animationDuration);
     }
 
-    private void displayNextAction(boolean previousTurnValid,boolean isFirstLaunch) {
+    private void tintProgressBar(int color) {
+        // fixes pre-Lollipop progressBar indeterminateDrawable tinting
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Drawable wrapDrawable = DrawableCompat.wrap(mProgressBar.getIndeterminateDrawable());
+            DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(this, color));
+            mProgressBar.setIndeterminateDrawable(DrawableCompat.unwrap(wrapDrawable));
+        } else {
+            mProgressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, color), PorterDuff.Mode.SRC_IN);
+        }
+    }
+
+    private void displayNextAction(final boolean previousTurnValid, boolean isFirstLaunch) {
         // cancel the timer
         turnTimer.cancel();
         turnTimer.purge();
         // depending on first launch either directly set or animate image change.
         if (isFirstLaunch) {
-            mActionImageView.setImageResource(currentTurn.getImageId());
-            mPromptLabel.setText(currentTurn.getAction().getDescription());
+//            mActionImageSwitcher.setImageResource(currentTurn.getImageId());
+//            mPromptLabel.setText(currentTurn.getAction().getDescription());
         } else {
+            ImageSwitcher imageSwitcher = new ImageSwitcher(this);
+
             // TODO: animate imageview with new image and prompt label (if not the first launch)
             // TODO: on animation complete, accept input again. Also - if previous turn valid - call `startProgressBarAnimating` and `startCountdownClock`
         }
+
+
+        // TODO: delete this (make it an animation as the above todos explain
+        mActionImageSwitcher.setImageDrawable(ContextCompat.getDrawable(this,currentTurn.getImageId()));
+        mPromptLabel.setText(currentTurn.getAction().getDescription());
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.acceptInput = true;
+                if (previousTurnValid) {
+                    startProgressBarAnimating();
+                    startCountdownClock();
+                }
+            }
+        }, 300);
+
+        ///////////////////
+
+
+
     }
 
     private void startProgressBarAnimating() {
         // force the progress bar back to full
-        mProgressBar.setProgress(mProgressBar.getMax(),false);
+        mProgressBar.setProgress(mProgressBar.getMax());
         // start the progress bar animation back down to 0
         ProgressBarAnimation progressBarDownAnimation = new ProgressBarAnimation(mProgressBar,mProgressBar.getMax(),0);
         progressBarDownAnimation.setDuration(currentTurn.getTimeForMove());
@@ -334,9 +415,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startCountdownClock() {
-        turnTimer.cancel();
-        turnTimer.purge();
-        turnTimer.schedule(timerTask,currentTurn.getTimeForMove());
+        turnTimer = new Timer("turn timer");
+        turnTimer.schedule(new MyTimerTask(),100000);
     }
 
     private void timeRanOut() {
@@ -344,13 +424,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void updateScoreLabelsForGameEnded(boolean gameEnded) {
-        if (gameEnded) {
-            // TODO: animate score label big
-            // TODO: present highscore label
-        } else {
-            // TODO: update score label to "1" and make small again
-            // TODO: hide the highscore label
-        }
+        // the ending values
+        float endingScale = gameEnded ? 1.45f : 1.0f;
+        float endingAlpha = gameEnded ? 1.0f : 0.0f;
+        // set the score label to 1 to avoid glitching
+        if (!gameEnded) { mScoreLabel.setText("1"); }
+        // perform the animations
+        mScoreLabel.animate().scaleX(endingScale).scaleY(endingScale).setDuration(150).start();
+        mHighscoreLabel.animate().alpha(endingAlpha).setDuration(150).start();
     }
 
     private void changeExtraButtonsForGameEnded(boolean gameEnded) {
