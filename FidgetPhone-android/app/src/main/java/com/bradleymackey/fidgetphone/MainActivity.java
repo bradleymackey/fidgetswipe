@@ -1,5 +1,6 @@
 package com.bradleymackey.fidgetphone;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageSwitcher;
@@ -132,8 +134,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return myView;
             }
         });
-//        mActionImageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.flip_in));
-//        mActionImageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.flip_in));
+        Animation aniIn = AnimationUtils.loadAnimation(this,android.R.anim.fade_in);
+        aniIn.setDuration(300);
+        mActionImageSwitcher.setInAnimation(aniIn);
+        Animation aniOut = AnimationUtils.loadAnimation(this,android.R.anim.fade_out);
+        aniOut.setDuration(25);
+        mActionImageSwitcher.setOutAnimation(aniOut);
     }
 
     // MARK: Interaction Handling
@@ -331,11 +337,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         // set the tint color of the image and the progress bar (not animated)
-        if (previousTurnValid) {
-            tintProgressBar(R.color.greenColor);
+        if (previousTurnValid && !isFirstLaunch) {
+            //tintProgressBar(R.color.greenColor);
+            mProgressBar.getProgressDrawable().setColorFilter(
+                    ContextCompat.getColor(this,R.color.greenColor), android.graphics.PorterDuff.Mode.SRC_IN);
            // mActionImageSwitcher.setColorFilter(ContextCompat.getColor(this,R.color.greenColor));
-        } else {
-            tintProgressBar(R.color.redColor);
+        } else if (!previousTurnValid && !isFirstLaunch) {
+            //tintProgressBar(R.color.redColor);
+            mProgressBar.getProgressDrawable().setColorFilter(
+                    ContextCompat.getColor(this,R.color.redColor), android.graphics.PorterDuff.Mode.SRC_IN);
            // mActionImageSwitcher.setColorFilter(ContextCompat.getColor(this,R.color.redColor));
         }
 
@@ -348,7 +358,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 // set the new score
                 MainActivity.this.mScoreLabel.setText(String.valueOf(currentTurn.getNewScore()));
                 // restore tint colors
-                MainActivity.this.tintProgressBar(R.color.colorAccent);
+                MainActivity.this.mProgressBar.getProgressDrawable().setColorFilter(
+                        ContextCompat.getColor(MainActivity.this,R.color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
               //  MainActivity.this.mActionImageSwitcher.getForeground().setColorFilter(R.color.colorAccent);
                 // display the next action
                 MainActivity.this.displayNextAction(previousTurnValid,isFirstLaunch);
@@ -370,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void displayNextAction(final boolean previousTurnValid, boolean isFirstLaunch) {
         // cancel the timer
         turnTimer.cancel();
-        turnTimer.purge();
         // depending on first launch either directly set or animate image change.
         if (isFirstLaunch) {
 //            mActionImageSwitcher.setImageResource(currentTurn.getImageId());
@@ -400,9 +410,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }, 300);
 
         ///////////////////
-
-
-
     }
 
     private void startProgressBarAnimating() {
@@ -416,11 +423,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void startCountdownClock() {
         turnTimer = new Timer("turn timer");
-        turnTimer.schedule(new MyTimerTask(),100000);
+        turnTimer.schedule(new MyTimerTask(),currentTurn.getTimeForMove());
     }
 
     private void timeRanOut() {
-        MainActivity.this.progressGame(game.takeMove(TIME_RAN_OUT),false);
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.progressGame(game.takeMove(TIME_RAN_OUT),false);
+            }
+        });
     }
 
     private void updateScoreLabelsForGameEnded(boolean gameEnded) {
