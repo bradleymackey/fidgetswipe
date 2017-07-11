@@ -131,12 +131,17 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		return button
 	}()
 	
+	private var adViewAdded = false
+	
 	private lazy var adView:FBAdView = {
-		FBAdSettings.setLogLevel(.debug)
-		FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
-		let ad = FBAdView(placementID: "", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+		#if DEBUG
+			FBAdSettings.setLogLevel(.log)
+			FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
+		#endif
+		let ad = FBAdView(placementID: AdvertManager.shared.placementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
 		ad.frame = CGRect(x: 0, y: self.view.frame.height-ad.bounds.size.height, width: ad.bounds.size.width, height: ad.bounds.size.height)
 		ad.delegate = self
+		ad.backgroundColor = .white
 		return ad
 	}()
 	
@@ -197,11 +202,14 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 		self.view.addSubview(highscoreLabel)
 		self.view.addSubview(leaderboardButton)
 		self.view.addSubview(shareButton)
-		if (AdvertManager.shared.adsEnabled == true) {
+		addAdviewToViewIfAllowed()
+	}
+	
+	private func addAdviewToViewIfAllowed() {
+		if (AdvertManager.shared.adsEnabled && !adViewAdded) {
 			self.view.addSubview(adView)
 			adView.loadAd()
 		}
-		
 	}
 	
 	/// When called, the system volume indicator will no longer be displayed (given that we have the right AVAudioSessionCategory set).
@@ -393,7 +401,9 @@ public final class ViewController: UIViewController, GKGameCenterControllerDeleg
 
         // animate to the next turn
         animateActionRecieved(forPreviousTurnValid: previousTurnValid, isFirstLanuch: isFirstLaunch)
-        
+		
+		// add adverts to the view if we can (we may have gotten a remote config update during the running of the app, so keep on trying).
+		addAdviewToViewIfAllowed()
     }
 	
 	private func startAccelerometerUpdates(ifNeededforAction action:Action) {
