@@ -14,9 +14,9 @@ public final class TurnData implements Cloneable {
     private int newScore;
 
     /// The time allowed for this move.
-    private double timeForMove;
+    private long timeForMove;
 
-    public TurnData(Action action, int newScore, double timeForMove) {
+    public TurnData(Action action, int newScore, long timeForMove) {
         this.action = action;
         this.newScore = newScore;
         this.timeForMove = timeForMove;
@@ -30,7 +30,7 @@ public final class TurnData implements Cloneable {
         return newScore;
     }
 
-    public double getTimeForMove() {
+    public long getTimeForMove() {
         return timeForMove;
     }
 

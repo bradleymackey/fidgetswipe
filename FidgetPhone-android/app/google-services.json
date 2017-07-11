@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "291840025671",
+    "firebase_url": "https://fidgetswipe.firebaseio.com",
+    "project_id": "fidgetswipe",
+    "storage_bucket": "fidgetswipe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291840025671:android:43e24eb2009ed2a4",
+        "android_client_info": {
+          "package_name": "com.bradleymackey.fidgetphone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291840025671-3tvdg8nqu45e25dgld6d06j8v7m4bbiu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bradleymackey.fidgetphone",
+            "certificate_hash": "9f8a82ff626cf6efdedcf6dde89331f86e1cbb89"
+          }
+        },
+        {
+          "client_id": "291840025671-no6sn0q1iimigo46vtuq6ug7rt1gglue.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGDuNfWHw5NxsRuKKL_bMhB3mOj79wWpw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291840025671-no6sn0q1iimigo46vtuq6ug7rt1gglue.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "291840025671-3nlvj1v66tnpbl6of5jjcjol2ckiucs8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bradleymackey.fidgetphone"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

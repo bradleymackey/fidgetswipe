@@ -5,12 +5,12 @@ import static com.bradleymackey.fidgetphone.model.Action.*;
 public final class Game {
 
     // MARK: Move Times
-    public static final double TAP_TIME = 1.7;
-    public static final double SWIPE_TIME = 1.7;
-    public static final double SHAKE_TIME = 2.0;
-    public static final double UPSIDE_DOWN_TIME = 2.1;
-    public static final double FACE_TIME = 2.1;
-    public static final double VOLUME_TIME = 2.1;
+    public static final long TAP_TIME = 1700;
+    public static final long SWIPE_TIME = 1700;
+    public static final long SHAKE_TIME = 2000;
+    public static final long UPSIDE_DOWN_TIME = 2100;
+    public static final long FACE_TIME = 2100;
+    public static final long VOLUME_TIME = 2100;
 
     // Gives a notion of state to the game.
     private enum State {
@@ -78,7 +78,7 @@ public final class Game {
     }
 
     /// The time allowed for each given move
-    private double timeForMove(Action action) {
+    private long timeForMove(Action action) {
         switch (action) {
             case SWIPE_DOWN: case SWIPE_LEFT: case SWIPE_RIGHT: case SWIPE_UP:
                 return SWIPE_TIME;

@@ -6,20 +6,26 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
-import android.os.Handler;
-import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.bradleymackey.fidgetphone.animation.ProgressBarAnimation;
 import com.bradleymackey.fidgetphone.helpers.OnSwipeTouchListener;
-import com.bradleymackey.fidgetphone.helpers.SettingsContentObserver;
 import com.bradleymackey.fidgetphone.model.Action;
 import com.bradleymackey.fidgetphone.model.Game;
 import com.bradleymackey.fidgetphone.model.TurnData;
+
+import org.w3c.dom.Text;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.bradleymackey.fidgetphone.model.Action.*;
 
@@ -35,10 +41,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // MARK: Animation Constants
 
-    public static final double GREEN_FLASH_ANIMATION_TIME = 0.2;
-    public static final double RED_FLASH_ANIMATION_TIME = 0.5;
-    public static final double NEXT_MOVE_ANIMATION_TIME = 0.25;
-    public static final double RESTORE_PROGRESS_BAR_ANIMATION_TIME = 0.1;
+    public static final long GREEN_FLASH_ANIMATION_TIME = 200;
+    public static final long RED_FLASH_ANIMATION_TIME = 500;
+    public static final long NEXT_MOVE_ANIMATION_TIME = 250;
+    public static final long RESTORE_PROGRESS_BAR_ANIMATION_TIME = 100;
 
     // MARK: Game Management
 
@@ -46,8 +52,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Game game = new Game();
     private TurnData currentTurn;
 
+    // Manage the timing of turns
+    private Timer turnTimer = new Timer("turn_timer");
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            MainActivity.this.timeRanOut();
+        }
+
+        @Override
+        public boolean cancel() {
+            Log.i(TAG, "timer task being cancelled!");
+            return super.cancel();
+        }
+    };
+
     /// Variable so we know when we should accept user input (spam prevention)
-    private boolean acceptInput = true;
+    private boolean acceptInput = false;
 
     /// Whether the game has ended or not
     private boolean gameEnded = false;
@@ -56,12 +77,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
 
+    // MARK: Game Elements
+
+    private ProgressBar mProgressBar;
+    private TextView mScoreLabel;
+    private TextView mHighscoreLabel;
+    private ImageView mActionImageView;
+    private TextView mPromptLabel;
+
     // MARK: Initalisation
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get the elements from the xml
+        setViewElementVariables();
 
         // set volume mode to affect music, not ringer.
         // it shouldn't affect it anyway, but just in case
@@ -78,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // setup the game's first action
         progressGame(false,true);
 
+    }
+
+    private void setViewElementVariables() {
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mScoreLabel = (TextView) findViewById(R.id.scoreLabel);
+        mHighscoreLabel = (TextView) findViewById(R.id.highscoreLabel);
+        mActionImageView = (ImageView) findViewById(R.id.imageView);
+        mPromptLabel = (TextView) findViewById(R.id.promptLabel);
     }
 
     // MARK: Interaction Handling
@@ -225,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void progressGame(boolean previousTurnValid, boolean isFirstLaunch) {
 
         // stop accepting input (to prevent spamming)
-        //acceptInput = false;
+        acceptInput = false;
 
         if (!previousTurnValid && currentTurn != null) {
             gameEnded = true;
@@ -253,34 +293,53 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void startAccelerometerUpdatesIfNeededForAction(Action action) {
         if (action.isMotionChallenge()) {
-           mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_GAME);
+            mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_GAME);
         } else {
             mSensorManager.unregisterListener(this);
         }
     }
 
     private void animateActionRecievedForPreviousTurnValid(boolean previousTurnValid, boolean isFirstLaunch) {
-        // TODO: animate flash progress bar and score label red/green and restore progress bar to 1
+        long animationDuration = previousTurnValid ? GREEN_FLASH_ANIMATION_TIME : RED_FLASH_ANIMATION_TIME;
+        // Animate progress bar back to full
+        ProgressBarAnimation progressBarUpAnimation = new ProgressBarAnimation(mProgressBar,mProgressBar.getProgress(),mProgressBar.getMax());
+        progressBarUpAnimation.setDuration(animationDuration);
+        mProgressBar.startAnimation(progressBarUpAnimation);
+        // TODO: animate flash progress bar and score label red/green and [restore progress bar to 1](done)
         // TODO: on completion of that, update the score label, and remove the tint colours and call displayNextAction (below)
     }
 
     private void displayNextAction(boolean previousTurnValid,boolean isFirstLaunch) {
-        // TODO: stop any timer that is timing the turn
+        // cancel the timer
+        turnTimer.cancel();
+        turnTimer.purge();
+        // depending on first launch either directly set or animate image change.
         if (isFirstLaunch) {
-            // TODO: directly set imageview with turn image (no animation) and prompt label
+            mActionImageView.setImageResource(currentTurn.getImageId());
+            mPromptLabel.setText(currentTurn.getAction().getDescription());
+        } else {
+            // TODO: animate imageview with new image and prompt label (if not the first launch)
+            // TODO: on animation complete, accept input again. Also - if previous turn valid - call `startProgressBarAnimating` and `startCountdownClock`
         }
-        // TODO: animate imageview with new image and prompt label (if not the first launch)
-        // TODO: on animation complete, accept input again. Also - if previous turn valid - call `startProgressBarAnimating` and `startCountdownClock`
-
     }
 
     private void startProgressBarAnimating() {
-        // TODO: force progress bar to 1
-        // TODO: start the animation to 0, using currentTurn.timeForMove
+        // force the progress bar back to full
+        mProgressBar.setProgress(mProgressBar.getMax(),false);
+        // start the progress bar animation back down to 0
+        ProgressBarAnimation progressBarDownAnimation = new ProgressBarAnimation(mProgressBar,mProgressBar.getMax(),0);
+        progressBarDownAnimation.setDuration(currentTurn.getTimeForMove());
+        mProgressBar.startAnimation(progressBarDownAnimation);
     }
 
     private void startCountdownClock() {
-        // TODO: start some sort of clock to time the turn (research, i dont know how to do this)
+        turnTimer.cancel();
+        turnTimer.purge();
+        turnTimer.schedule(timerTask,currentTurn.getTimeForMove());
+    }
+
+    private void timeRanOut() {
+        MainActivity.this.progressGame(game.takeMove(TIME_RAN_OUT),false);
     }
 
     private void updateScoreLabelsForGameEnded(boolean gameEnded) {
